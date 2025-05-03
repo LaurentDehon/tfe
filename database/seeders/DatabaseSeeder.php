@@ -13,11 +13,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        // Création d'un utilisateur de test (non utilisé dans notre application sans authentification)
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+        ]);
+        
+        // Exécution des seeders personnalisés
+        $this->call([
+            MilestoneSeeder::class,
+            CommentSeeder::class,
         ]);
     }
 }

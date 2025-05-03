@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('milestones', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->string('document_template_path')->nullable();
-            $table->json('tools')->nullable();
-            $table->json('concepts')->nullable();
-            $table->json('courses')->nullable();
+            $table->text('tools')->nullable();
+            $table->text('concepts')->nullable();
+            $table->text('courses')->nullable();
+            $table->integer('position')->default(0);
             $table->timestamps();
         });
     }

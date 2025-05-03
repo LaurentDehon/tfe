@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            $table->string('author');
+            $table->string('author_name');
             $table->text('content');
             $table->foreignId('parent_id')->nullable()->constrained('comments')->onDelete('cascade');
-            $table->unsignedInteger('votes_up')->default(0);
-            $table->unsignedInteger('votes_down')->default(0);
+            $table->integer('votes_up')->default(0);
+            $table->integer('votes_down')->default(0);
             $table->timestamps();
         });
     }
