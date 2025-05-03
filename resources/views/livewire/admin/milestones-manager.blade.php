@@ -103,17 +103,17 @@
                     
                     <form wire:submit.prevent="saveMilestone">
                         <div class="grid grid-cols-6 gap-6">
-                            <div class="col-span-6 sm:col-span-3">
+                            <div class="col-span-6">
                                 <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Titre</label>
                                 <input type="text" id="title" wire:model="milestone.title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5 px-4">
                                 @error('milestone.title') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                             </div>
                             
-                            <div class="col-span-6 sm:col-span-3">
+                            {{-- <div class="col-span-6 sm:col-span-3">
                                 <label for="position" class="block text-sm font-medium text-gray-700 mb-1">Position</label>
                                 <input type="number" id="position" wire:model="milestone.position" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5 px-4">
                                 @error('milestone.position') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
-                            </div>
+                            </div> --}}
                             
                             <div class="col-span-6">
                                 <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
@@ -121,21 +121,186 @@
                                 @error('milestone.description') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                             </div>
                             
+                            <!-- Section outils avec autocomplétion -->
                             <div class="col-span-6">
-                                <label for="tools" class="block text-sm font-medium text-gray-700 mb-1">Outils (séparés par des virgules)</label>
-                                <input type="text" id="tools" wire:model="milestone.tools" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5 px-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Outils</label>
+                                <div class="relative">
+                                    <input 
+                                        type="text" 
+                                        wire:model="toolSearch" 
+                                        wire:keyup="searchTools" 
+                                        wire:click="toggleToolsDropdown"
+                                        wire:keydown.enter.prevent="addNewTool" 
+                                        placeholder="Chercher ou ajouter un outil..." 
+                                        autocomplete="off"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5 px-4">
+                                    
+                                    <!-- Dropdown d'autocomplétion -->
+                                    @if($showToolsDropdown && count($toolSuggestions) > 0)
+                                        <div class="absolute z-50 mt-1 w-full bg-white shadow-lg rounded-md border border-gray-300 max-h-60 overflow-y-auto">
+                                            <ul>
+                                                @foreach($toolSuggestions as $tool)
+                                                    <li 
+                                                        wire:click="selectTool('{{ $tool }}')" 
+                                                        class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center">
+                                                        <span class="w-1.5 h-4 bg-blue-500 rounded-full mr-2"></span>
+                                                        {{ $tool }}
+                                                    </li>
+                                                @endforeach
+                                                @if($toolSearch && !in_array($toolSearch, $toolSuggestions))
+                                                    <li 
+                                                        wire:click="selectTool('{{ $toolSearch }}')" 
+                                                        class="px-4 py-2 hover:bg-blue-100 cursor-pointer text-sm bg-blue-50 flex items-center font-medium">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                                                        </svg>
+                                                        <span>Ajouter: "<span class="text-blue-600">{{ $toolSearch }}</span>"</span>
+                                                    </li>
+                                                @endif
+                                            </ul>
+                                        </div>
+                                    @endif
+                                </div>
+                                
+                                <!-- Tags d'outils sélectionnés -->
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    @foreach($selectedTools as $index => $tool)
+                                        <div class="flex items-center bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full text-sm">
+                                            {{ $tool }}
+                                            <button 
+                                                type="button" 
+                                                wire:click="removeTool({{ $index }})" 
+                                                class="ml-1 text-blue-600 hover:text-blue-800 focus:outline-none">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                
                                 @error('milestone.tools') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                             </div>
-                            
+
+                            <!-- Section concepts avec autocomplétion -->
                             <div class="col-span-6">
-                                <label for="concepts" class="block text-sm font-medium text-gray-700 mb-1">Concepts (séparés par des virgules)</label>
-                                <input type="text" id="concepts" wire:model="milestone.concepts" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5 px-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Concepts</label>
+                                <div class="relative">
+                                    <input 
+                                        type="text" 
+                                        wire:model="conceptSearch" 
+                                        wire:keyup="searchConcepts" 
+                                        wire:click="toggleConceptsDropdown"
+                                        wire:keydown.enter.prevent="addNewConcept" 
+                                        placeholder="Chercher ou ajouter un concept..." 
+                                        autocomplete="off"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm py-2.5 px-4">
+                                    
+                                    <!-- Dropdown d'autocomplétion -->
+                                    @if($showConceptsDropdown && count($conceptSuggestions) > 0)
+                                        <div class="absolute z-50 mt-1 w-full bg-white shadow-lg rounded-md border border-gray-300 max-h-60 overflow-y-auto">
+                                            <ul>
+                                                @foreach($conceptSuggestions as $concept)
+                                                    <li 
+                                                        wire:click="selectConcept('{{ $concept }}')" 
+                                                        class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center">
+                                                        <span class="w-1.5 h-4 bg-green-500 rounded-full mr-2"></span>
+                                                        {{ $concept }}
+                                                    </li>
+                                                @endforeach
+                                                @if($conceptSearch && !in_array($conceptSearch, $conceptSuggestions))
+                                                    <li 
+                                                        wire:click="selectConcept('{{ $conceptSearch }}')" 
+                                                        class="px-4 py-2 hover:bg-green-100 cursor-pointer text-sm bg-green-50 flex items-center font-medium">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                                                        </svg>
+                                                        <span>Ajouter: "<span class="text-green-600">{{ $conceptSearch }}</span>"</span>
+                                                    </li>
+                                                @endif
+                                            </ul>
+                                        </div>
+                                    @endif
+                                </div>
+                                
+                                <!-- Tags de concepts sélectionnés -->
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    @foreach($selectedConcepts as $index => $concept)
+                                        <div class="flex items-center bg-green-50 text-green-700 px-2.5 py-1 rounded-full text-sm">
+                                            {{ $concept }}
+                                            <button 
+                                                type="button" 
+                                                wire:click="removeConcept({{ $index }})" 
+                                                class="ml-1 text-green-600 hover:text-green-800 focus:outline-none">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                
                                 @error('milestone.concepts') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                             </div>
-                            
+
+                            <!-- Section cours avec autocomplétion -->
                             <div class="col-span-6">
-                                <label for="courses" class="block text-sm font-medium text-gray-700 mb-1">Cours associés (séparés par des virgules)</label>
-                                <input type="text" id="courses" wire:model="milestone.courses" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5 px-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Cours associés</label>
+                                <div class="relative">
+                                    <input 
+                                        type="text" 
+                                        wire:model="courseSearch" 
+                                        wire:keyup="searchCourses" 
+                                        wire:click="toggleCoursesDropdown"
+                                        wire:keydown.enter.prevent="addNewCourse" 
+                                        placeholder="Chercher ou ajouter un cours..." 
+                                        autocomplete="off"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-sm py-2.5 px-4">
+                                    
+                                    <!-- Dropdown d'autocomplétion -->
+                                    @if($showCoursesDropdown && count($courseSuggestions) > 0)
+                                        <div class="absolute z-50 mt-1 w-full bg-white shadow-lg rounded-md border border-gray-300 max-h-60 overflow-y-auto">
+                                            <ul>
+                                                @foreach($courseSuggestions as $course)
+                                                    <li 
+                                                        wire:click="selectCourse('{{ $course }}')" 
+                                                        class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center">
+                                                        <span class="w-1.5 h-4 bg-purple-500 rounded-full mr-2"></span>
+                                                        {{ $course }}
+                                                    </li>
+                                                @endforeach
+                                                @if($courseSearch && !in_array($courseSearch, $courseSuggestions))
+                                                    <li 
+                                                        wire:click="selectCourse('{{ $courseSearch }}')" 
+                                                        class="px-4 py-2 hover:bg-purple-100 cursor-pointer text-sm bg-purple-50 flex items-center font-medium">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                                                        </svg>
+                                                        <span>Ajouter: "<span class="text-purple-600">{{ $courseSearch }}</span>"</span>
+                                                    </li>
+                                                @endif
+                                            </ul>
+                                        </div>
+                                    @endif
+                                </div>
+                                
+                                <!-- Tags de cours sélectionnés -->
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    @foreach($selectedCourses as $index => $course)
+                                        <div class="flex items-center bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full text-sm">
+                                            {{ $course }}
+                                            <button 
+                                                type="button" 
+                                                wire:click="removeCourse({{ $index }})" 
+                                                class="ml-1 text-purple-600 hover:text-purple-800 focus:outline-none">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                
                                 @error('milestone.courses') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                             </div>
                             
@@ -227,7 +392,7 @@
                                                                 <a href="{{ asset('storage/' . $document->file_path) }}" download class="rounded-md bg-white font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-xs px-3 py-2 border border-gray-300 shadow-sm">
                                                                     <div class="flex items-center">
                                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4-4m4 4V4" />
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0L8 8m4-4v12" />
                                                                         </svg>
                                                                         Télécharger
                                                                     </div>
@@ -290,4 +455,25 @@
         transform: scale(0.95);
     }
 </style>
+
+<script>
+    document.addEventListener('click', function(event) {
+        // Si le clic est en dehors des champs d'autocomplétion et des dropdowns
+        const toolsInput = document.querySelector('[wire\\:model="toolSearch"]');
+        const conceptsInput = document.querySelector('[wire\\:model="conceptSearch"]');
+        const coursesInput = document.querySelector('[wire\\:model="courseSearch"]');
+        
+        if (toolsInput && !toolsInput.contains(event.target)) {
+            Livewire.dispatch('hideDropdown', { type: 'tools' });
+        }
+        
+        if (conceptsInput && !conceptsInput.contains(event.target)) {
+            Livewire.dispatch('hideDropdown', { type: 'concepts' });
+        }
+        
+        if (coursesInput && !coursesInput.contains(event.target)) {
+            Livewire.dispatch('hideDropdown', { type: 'courses' });
+        }
+    });
+</script>
 @endpush

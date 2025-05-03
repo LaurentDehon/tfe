@@ -4,6 +4,9 @@ namespace App\Livewire\Admin;
 
 use App\Models\Milestone;
 use App\Models\MilestoneDocument;
+use App\Models\Tool;
+use App\Models\Concept;
+use App\Models\Course;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -20,6 +23,39 @@ class MilestonesManager extends Component
     public $documentDescription;
     public $milestoneDocuments = [];
     
+    // Variables pour les champs de texte
+    public $toolSearch = '';
+    public $conceptSearch = '';
+    public $courseSearch = '';
+    
+    // Variables pour les suggestions
+    public $toolSuggestions = [];
+    public $conceptSuggestions = [];
+    public $courseSuggestions = [];
+    
+    // Variables pour les éléments sélectionnés
+    public $selectedTools = [];
+    public $selectedConcepts = [];
+    public $selectedCourses = [];
+    
+    // Variables pour contrôler la visibilité des dropdowns
+    public $showToolsDropdown = false;
+    public $showConceptsDropdown = false;
+    public $showCoursesDropdown = false;
+    
+    protected $listeners = ['hideDropdown' => 'handleHideDropdown'];
+    
+    public function handleHideDropdown($data)
+    {
+        if ($data['type'] === 'tools') {
+            $this->showToolsDropdown = false;
+        } elseif ($data['type'] === 'concepts') {
+            $this->showConceptsDropdown = false;
+        } elseif ($data['type'] === 'courses') {
+            $this->showCoursesDropdown = false;
+        }
+    }
+
     public $milestone = [
         'id' => null,
         'title' => '',
@@ -57,6 +93,9 @@ class MilestonesManager extends Component
             ];
             $this->milestoneDocuments = $milestone->documents;
             $this->isEditing = true;
+            
+            // Charger les éléments sélectionnés
+            $this->loadSelectedItems();
         } else {
             $this->isEditing = false;
             // Position par défaut = dernier + 1
@@ -85,10 +124,229 @@ class MilestonesManager extends Component
             'courses' => '',
             'position' => 0
         ];
+        
         $this->documentToUpload = null;
         $this->documentName = '';
         $this->documentDescription = '';
         $this->milestoneDocuments = [];
+        
+        // Réinitialiser les variables de recherche et de sélection
+        $this->toolSearch = '';
+        $this->conceptSearch = '';
+        $this->courseSearch = '';
+        
+        $this->toolSuggestions = [];
+        $this->conceptSuggestions = [];
+        $this->courseSuggestions = [];
+        
+        $this->selectedTools = [];
+        $this->selectedConcepts = [];
+        $this->selectedCourses = [];
+        
+        // Masquer tous les dropdowns
+        $this->showToolsDropdown = false;
+        $this->showConceptsDropdown = false;
+        $this->showCoursesDropdown = false;
+    }
+    
+    public function loadSelectedItems()
+    {
+        // Charger les outils sélectionnés
+        if (!empty($this->milestone['tools'])) {
+            $this->selectedTools = array_map('trim', explode(',', $this->milestone['tools']));
+        }
+        
+        // Charger les concepts sélectionnés
+        if (!empty($this->milestone['concepts'])) {
+            $this->selectedConcepts = array_map('trim', explode(',', $this->milestone['concepts']));
+        }
+        
+        // Charger les cours sélectionnés
+        if (!empty($this->milestone['courses'])) {
+            $this->selectedCourses = array_map('trim', explode(',', $this->milestone['courses']));
+        }
+    }
+    
+    // Méthodes pour gérer la visibilité des dropdowns
+    public function hideAllDropdowns()
+    {
+        $this->showToolsDropdown = false;
+        $this->showConceptsDropdown = false;
+        $this->showCoursesDropdown = false;
+    }
+    
+    public function toggleToolsDropdown()
+    {
+        $this->showToolsDropdown = !$this->showToolsDropdown;
+        $this->showConceptsDropdown = false;
+        $this->showCoursesDropdown = false;
+    }
+    
+    public function toggleConceptsDropdown()
+    {
+        $this->showConceptsDropdown = !$this->showConceptsDropdown;
+        $this->showToolsDropdown = false;
+        $this->showCoursesDropdown = false;
+    }
+    
+    public function toggleCoursesDropdown()
+    {
+        $this->showCoursesDropdown = !$this->showCoursesDropdown;
+        $this->showToolsDropdown = false;
+        $this->showConceptsDropdown = false;
+    }
+    
+    // Recherche et gestion des outils
+    public function searchTools()
+    {
+        if (strlen($this->toolSearch) >= 1) {
+            $this->toolSuggestions = Tool::where('name', 'like', '%' . $this->toolSearch . '%')
+                ->orderBy('name')
+                ->limit(5)
+                ->pluck('name')
+                ->toArray();
+                
+            $this->showToolsDropdown = !empty($this->toolSuggestions);
+        } else {
+            $this->toolSuggestions = [];
+            $this->showToolsDropdown = false;
+        }
+    }
+    
+    public function selectTool($tool)
+    {
+        if (!in_array($tool, $this->selectedTools)) {
+            $this->selectedTools[] = $tool;
+            $this->updateMilestoneTools();
+            
+            // Sauvegarder l'outil dans la base de données s'il n'existe pas encore
+            Tool::firstOrCreate(['name' => $tool]);
+        }
+        
+        $this->toolSearch = '';
+        $this->toolSuggestions = [];
+        $this->showToolsDropdown = false;
+    }
+    
+    public function addNewTool()
+    {
+        if (!empty($this->toolSearch) && !in_array($this->toolSearch, $this->selectedTools)) {
+            $this->selectTool($this->toolSearch);
+        }
+    }
+    
+    public function removeTool($index)
+    {
+        unset($this->selectedTools[$index]);
+        $this->selectedTools = array_values($this->selectedTools);
+        $this->updateMilestoneTools();
+    }
+    
+    public function updateMilestoneTools()
+    {
+        $this->milestone['tools'] = implode(', ', $this->selectedTools);
+    }
+    
+    // Recherche et gestion des concepts
+    public function searchConcepts()
+    {
+        if (strlen($this->conceptSearch) >= 1) {
+            $this->conceptSuggestions = Concept::where('name', 'like', '%' . $this->conceptSearch . '%')
+                ->orderBy('name')
+                ->limit(5)
+                ->pluck('name')
+                ->toArray();
+                
+            $this->showConceptsDropdown = !empty($this->conceptSuggestions);
+        } else {
+            $this->conceptSuggestions = [];
+            $this->showConceptsDropdown = false;
+        }
+    }
+    
+    public function selectConcept($concept)
+    {
+        if (!in_array($concept, $this->selectedConcepts)) {
+            $this->selectedConcepts[] = $concept;
+            $this->updateMilestoneConcepts();
+            
+            // Sauvegarder le concept dans la base de données s'il n'existe pas encore
+            Concept::firstOrCreate(['name' => $concept]);
+        }
+        
+        $this->conceptSearch = '';
+        $this->conceptSuggestions = [];
+        $this->showConceptsDropdown = false;
+    }
+    
+    public function addNewConcept()
+    {
+        if (!empty($this->conceptSearch) && !in_array($this->conceptSearch, $this->selectedConcepts)) {
+            $this->selectConcept($this->conceptSearch);
+        }
+    }
+    
+    public function removeConcept($index)
+    {
+        unset($this->selectedConcepts[$index]);
+        $this->selectedConcepts = array_values($this->selectedConcepts);
+        $this->updateMilestoneConcepts();
+    }
+    
+    public function updateMilestoneConcepts()
+    {
+        $this->milestone['concepts'] = implode(', ', $this->selectedConcepts);
+    }
+    
+    // Recherche et gestion des cours
+    public function searchCourses()
+    {
+        if (strlen($this->courseSearch) >= 1) {
+            $this->courseSuggestions = Course::where('name', 'like', '%' . $this->courseSearch . '%')
+                ->orderBy('name')
+                ->limit(5)
+                ->pluck('name')
+                ->toArray();
+                
+            $this->showCoursesDropdown = !empty($this->courseSuggestions);
+        } else {
+            $this->courseSuggestions = [];
+            $this->showCoursesDropdown = false;
+        }
+    }
+    
+    public function selectCourse($course)
+    {
+        if (!in_array($course, $this->selectedCourses)) {
+            $this->selectedCourses[] = $course;
+            $this->updateMilestoneCourses();
+            
+            // Sauvegarder le cours dans la base de données s'il n'existe pas encore
+            Course::firstOrCreate(['name' => $course]);
+        }
+        
+        $this->courseSearch = '';
+        $this->courseSuggestions = [];
+        $this->showCoursesDropdown = false;
+    }
+    
+    public function addNewCourse()
+    {
+        if (!empty($this->courseSearch) && !in_array($this->courseSearch, $this->selectedCourses)) {
+            $this->selectCourse($this->courseSearch);
+        }
+    }
+    
+    public function removeCourse($index)
+    {
+        unset($this->selectedCourses[$index]);
+        $this->selectedCourses = array_values($this->selectedCourses);
+        $this->updateMilestoneCourses();
+    }
+    
+    public function updateMilestoneCourses()
+    {
+        $this->milestone['courses'] = implode(', ', $this->selectedCourses);
     }
 
     public function saveMilestone()
