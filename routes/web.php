@@ -34,4 +34,19 @@ Route::prefix('admin')->group(function () {
     Route::get('/milestones', function () {
         return view('pages.admin.milestones');
     })->name('admin.milestones');
+    
+    // Gestion des outils
+    Route::get('/tools', function () {
+        return view('pages.admin.tools');
+    })->name('admin.tools');
+    
+    // Gestion des concepts
+    Route::get('/concepts', function () {
+        return view('pages.admin.concepts');
+    })->name('admin.concepts');
+    
+    // Gestion des cours
+    Route::get('/courses', function () {
+        return view('pages.admin.courses');
+    })->name('admin.courses');
 });
