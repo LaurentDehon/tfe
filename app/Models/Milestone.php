@@ -3,13 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Milestone extends Model
 {
     protected $fillable = [
         'title',
         'description',
-        'document_template_path',
         'tools',
         'concepts',
         'courses',
@@ -29,5 +29,13 @@ class Milestone extends Model
     public function getCoursesArrayAttribute()
     {
         return $this->courses ? explode(',', $this->courses) : [];
+    }
+    
+    /**
+     * Obtient les documents associés à ce jalon.
+     */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(MilestoneDocument::class);
     }
 }

@@ -9,11 +9,13 @@ class Timeline extends Component
 {
     public $selectedMilestone = null;
     public $showMilestoneModal = false;
+    public $milestoneDocuments = [];
 
     public function selectMilestone($id)
     {
-        $this->selectedMilestone = Milestone::find($id);
-        $this->showMilestoneModal = true;
+        $milestone = Milestone::find($id);
+        // Émettre un événement pour le composant MilestoneModal
+        $this->dispatch('showMilestone', milestone: $milestone);
     }
 
     public function closeMilestoneModal()
@@ -23,7 +25,7 @@ class Timeline extends Component
 
     public function render()
     {
-        $milestones = Milestone::orderBy('position', 'asc')->get();
+        $milestones = Milestone::with('documents')->orderBy('position', 'asc')->get();
         
         return view('livewire.timeline', [
             'milestones' => $milestones,

@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('milestones', function (Blueprint $table) {
+        Schema::create('milestone_documents', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->foreignId('milestone_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->string('file_path');
             $table->text('description')->nullable();
-            $table->text('tools')->nullable();
-            $table->text('concepts')->nullable();
-            $table->text('courses')->nullable();
-            $table->integer('position')->default(0);
+            $table->string('file_type')->nullable();
+            $table->integer('file_size')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('milestones');
+        Schema::dropIfExists('milestone_documents');
     }
 };
