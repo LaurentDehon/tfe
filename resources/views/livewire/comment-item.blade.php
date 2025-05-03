@@ -43,19 +43,19 @@
                 <div class="mb-4">
                     <label for="replyAuthorName" class="block text-sm font-medium text-gray-700">Votre nom</label>
                     <input type="text" id="replyAuthorName" wire:model="replyAuthorName" 
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5 px-4">
                     @error('replyAuthorName') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                 </div>
                 
                 <div class="mb-4">
                     <label for="replyContent" class="block text-sm font-medium text-gray-700">Votre réponse</label>
                     <textarea id="replyContent" rows="3" wire:model="replyContent" 
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"></textarea>
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5 px-4"></textarea>
                     @error('replyContent') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                 </div>
                 
                 <div class="flex justify-end">
-                    <button type="submit" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm">
+                    <button type="submit" class="px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm">
                         Publier la réponse
                     </button>
                 </div>

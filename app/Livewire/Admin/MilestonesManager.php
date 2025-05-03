@@ -160,6 +160,28 @@ class MilestonesManager extends Component
         }
     }
 
+    /**
+     * Met à jour l'ordre des jalons après un drag & drop
+     */
+    public function updateMilestoneOrder(array $orderedIds)
+    {
+        // Vérification que tous les IDs sont valides
+        $milestones = Milestone::whereIn('id', $orderedIds)->get()->keyBy('id');
+        
+        // Mise à jour des positions pour chaque jalon
+        foreach ($orderedIds as $position => $id) {
+            if (isset($milestones[$id])) {
+                $milestones[$id]->update(['position' => $position + 1]);
+            }
+        }
+        
+        // Rafraîchir la liste des jalons
+        $this->refreshMilestones();
+        
+        // Notification de succès
+        session()->flash('message', 'Ordre des jalons mis à jour avec succès!');
+    }
+
     public function render()
     {
         return view('livewire.admin.milestones-manager');
