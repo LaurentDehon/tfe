@@ -10,26 +10,60 @@ class ToolsManager extends Component
 {
     use WithPagination;
     
+    protected $paginationTheme = 'tailwind';
+    
     public $showModal = false;
     public $toolId;
     public $name;
     public $isEditing = false;
-    public $searchTerm = '';
+    
+    public $search = '';
+    public $sortField = 'name';
+    public $sortDirection = 'asc';
+    public $perPage = 10;
     
     protected $listeners = ['refresh' => '$refresh'];
+    
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'sortField' => ['except' => 'name'],
+        'sortDirection' => ['except' => 'asc'],
+        'perPage' => ['except' => 10]
+    ];
     
     protected $rules = [
         'name' => 'required|string|max:255|unique:tools,name',
     ];
     
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortDirection = 'asc';
+        }
+
+        $this->sortField = $field;
+    }
+    
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+    
+    public function updatedPerPage()
+    {
+        $this->resetPage();
+    }
+    
     public function updated($propertyName)
     {
         $this->validateOnly($propertyName);
-        
-        // Reset pagination when searching
-        if ($propertyName === 'searchTerm') {
-            $this->resetPage();
-        }
+    }
+    
+    public function mount()
+    {
+        $this->search = request()->query('search', $this->search);
     }
     
     public function openModal()
@@ -65,13 +99,13 @@ class ToolsManager extends Component
                 'name' => $this->name,
             ]);
             
-            $this->dispatchBrowserEvent('notify', ['message' => 'Outil mis à jour avec succès!']);
+            $this->dispatch('notify', ['message' => 'Outil mis à jour avec succès!']);
         } else {
             Tool::create([
                 'name' => $this->name,
             ]);
             
-            $this->dispatchBrowserEvent('notify', ['message' => 'Outil ajouté avec succès!']);
+            $this->dispatch('notify', ['message' => 'Outil ajouté avec succès!']);
         }
         
         $this->closeModal();
@@ -83,21 +117,17 @@ class ToolsManager extends Component
         // Check if tool is used in milestones before deleting
         $tool->delete();
         
-        $this->dispatchBrowserEvent('notify', ['message' => 'Outil supprimé avec succès!']);
+        $this->dispatch('notify', ['message' => 'Outil supprimé avec succès!']);
     }
     
     public function render()
     {
-        $query = Tool::query();
-        
-        if ($this->searchTerm) {
-            $query->where('name', 'like', '%' . $this->searchTerm . '%');
-        }
-        
-        $tools = $query->orderBy('name')->paginate(10);
-        
         return view('livewire.admin.tools-manager', [
-            'tools' => $tools
+            'tools' => Tool::when($this->search, function ($query) {
+                    $query->where('name', 'like', '%' . $this->search . '%');
+                })
+                ->orderBy($this->sortField, $this->sortDirection)
+                ->paginate($this->perPage)
         ]);
     }
 }

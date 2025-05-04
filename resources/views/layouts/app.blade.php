@@ -34,19 +34,42 @@
                     <a href="{{ route('timeline') }}" class="text-gray-700 hover:text-blue-500 font-medium">Timeline</a>
                     <a href="{{ route('comments') }}" class="text-gray-700 hover:text-blue-500 font-medium">Commentaires</a>
                 </div>
-                <div class="admin-dropdown relative" id="adminDropdown">
-                    <button id="adminBtn" class="text-gray-700 hover:text-blue-500 font-medium flex items-center">
-                        Administration
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                    <div id="adminMenu" class="dropdown-menu hidden absolute right-0 w-32 bg-white rounded-md shadow-lg py-1 z-10">
-                        <a href="{{ route('admin.milestones') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Jalons</a>
-                        <a href="{{ route('admin.tools') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Outils</a>
-                        <a href="{{ route('admin.concepts') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Concepts</a>
-                        <a href="{{ route('admin.courses') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cours</a>
-                    </div>
+                <div class="flex items-center space-x-6">
+                    @auth
+                        <div class="admin-dropdown relative" id="adminDropdown">
+                            <button id="adminBtn" class="text-gray-700 hover:text-blue-500 font-medium flex items-center">
+                                Administration
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div id="adminMenu" class="dropdown-menu hidden absolute right-0 w-40 bg-white rounded-md shadow-lg py-1 z-10">
+                                <a href="{{ route('admin.milestones') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Jalons</a>
+                                <a href="{{ route('admin.tools') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Outils</a>
+                                <a href="{{ route('admin.concepts') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Concepts</a>
+                                <a href="{{ route('admin.courses') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cours</a>
+                                <a href="{{ route('admin.users') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Utilisateurs</a>
+                            </div>
+                        </div>
+
+                        <div class="user-dropdown relative" id="userDropdown">
+                            <button id="userBtn" class="text-gray-700 hover:text-blue-500 font-medium flex items-center">
+                                {{ Auth::user()->name }}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div id="userMenu" class="dropdown-menu hidden absolute right-0 w-40 bg-white rounded-md shadow-lg py-1 z-10">
+                                <a href="{{ route('profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mon profil</a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Se déconnecter</button>
+                                </form>
+                            </div>
+                        </div>
+                    @else
+                        <a href="{{ route('login') }}" class="text-gray-700 hover:text-blue-500 font-medium">Se connecter</a>
+                    @endauth
                 </div>
             </nav>
         </div>
@@ -60,6 +83,12 @@
         @if(session()->has('message'))
             <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
                 <p>{{ session('message') }}</p>
+            </div>
+        @endif
+
+        @if(session()->has('success'))
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
+                <p>{{ session('success') }}</p>
             </div>
         @endif
         
@@ -78,37 +107,75 @@
     <!-- Menu déroulant script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Menu admin
             const adminDropdown = document.getElementById('adminDropdown');
-            const adminBtn = document.getElementById('adminBtn');
-            const adminMenu = document.getElementById('adminMenu');
-            let isOpen = false;
-            
-            function toggleMenu() {
-                if (isOpen) {
-                    adminMenu.classList.add('hidden');
-                } else {
-                    adminMenu.classList.remove('hidden');
+            if (adminDropdown) {
+                const adminBtn = document.getElementById('adminBtn');
+                const adminMenu = document.getElementById('adminMenu');
+                let isAdminOpen = false;
+                
+                function toggleAdminMenu() {
+                    if (isAdminOpen) {
+                        adminMenu.classList.add('hidden');
+                    } else {
+                        adminMenu.classList.remove('hidden');
+                    }
+                    isAdminOpen = !isAdminOpen;
                 }
-                isOpen = !isOpen;
+                
+                // Ouvrir le menu admin au clic
+                adminBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleAdminMenu();
+                });
+                
+                // Garder le menu ouvert quand on clique dessus
+                adminMenu.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
             }
             
-            // Ouvrir le menu au clic
-            adminBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleMenu();
-            });
+            // Menu utilisateur
+            const userDropdown = document.getElementById('userDropdown');
+            if (userDropdown) {
+                const userBtn = document.getElementById('userBtn');
+                const userMenu = document.getElementById('userMenu');
+                let isUserOpen = false;
+                
+                function toggleUserMenu() {
+                    if (isUserOpen) {
+                        userMenu.classList.add('hidden');
+                    } else {
+                        userMenu.classList.remove('hidden');
+                    }
+                    isUserOpen = !isUserOpen;
+                }
+                
+                // Ouvrir le menu utilisateur au clic
+                userBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleUserMenu();
+                });
+                
+                // Garder le menu ouvert quand on clique dessus
+                userMenu.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
             
-            // Garder le menu ouvert quand on clique dessus
-            adminMenu.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-            
-            // Fermer le menu si on clique ailleurs sur la page
+            // Fermer les menus si on clique ailleurs sur la page
             document.addEventListener('click', function() {
-                if (isOpen) {
+                const adminMenu = document.getElementById('adminMenu');
+                const userMenu = document.getElementById('userMenu');
+                
+                if (adminMenu && !adminMenu.classList.contains('hidden')) {
                     adminMenu.classList.add('hidden');
-                    isOpen = false;
+                }
+                
+                if (userMenu && !userMenu.classList.contains('hidden')) {
+                    userMenu.classList.add('hidden');
                 }
             });
         });
