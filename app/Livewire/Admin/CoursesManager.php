@@ -16,13 +16,14 @@ class CoursesManager extends Component
     public $courseId;
     public $name;
     public $isEditing = false;
+    public $page = 1;
     
     public $search = '';
     public $sortField = 'name';
     public $sortDirection = 'asc';
     public $perPage = 10;
     
-    protected $listeners = ['refresh' => '$refresh'];
+    protected $listeners = ['refresh' => '$refresh', 'courses-manager:delete' => 'delete'];
     
     protected $queryString = [
         'search' => ['except' => ''],
@@ -99,25 +100,55 @@ class CoursesManager extends Component
                 'name' => $this->name,
             ]);
             
-            $this->dispatch('notify', ['message' => 'Cours mis à jour avec succès!']);
+            $this->dispatch('notify', [
+                'type' => 'success',
+                'title' => 'Mise à jour réussie',
+                'message' => 'Le cours a été mis à jour avec succès!',
+                'toast' => true,
+                'position' => 'top-end',
+                'timer' => 3000,
+                'showConfirmButton' => false
+            ]);
         } else {
             Course::create([
                 'name' => $this->name,
             ]);
             
-            $this->dispatch('notify', ['message' => 'Cours ajouté avec succès!']);
+            $this->dispatch('notify', [
+                'type' => 'success',
+                'title' => 'Ajout réussi',
+                'message' => 'Nouveau cours ajouté avec succès!',
+                'toast' => true,
+                'position' => 'top-end',
+                'timer' => 3000,
+                'showConfirmButton' => false
+            ]);
         }
         
         $this->closeModal();
         $this->reset(['courseId', 'name', 'isEditing']);
     }
     
-    public function delete(Course $course)
+    public function goToPage($pageNumber)
     {
+        $this->setPage($pageNumber);
+    }
+    
+    public function delete($id)
+    {
+        $course = Course::findOrFail($id);
         // Check if course is used in milestones before deleting
         $course->delete();
         
-        $this->dispatch('notify', ['message' => 'Cours supprimé avec succès!']);
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'title' => 'Suppression réussie',
+            'message' => 'Le cours a été supprimé avec succès!',
+            'toast' => true,
+            'position' => 'top-end',
+            'timer' => 3000,
+            'showConfirmButton' => false
+        ]);
     }
     
     public function render()

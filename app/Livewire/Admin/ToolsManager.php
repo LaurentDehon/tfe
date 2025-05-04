@@ -16,13 +16,14 @@ class ToolsManager extends Component
     public $toolId;
     public $name;
     public $isEditing = false;
+    public $page = 1;
     
     public $search = '';
     public $sortField = 'name';
     public $sortDirection = 'asc';
     public $perPage = 10;
     
-    protected $listeners = ['refresh' => '$refresh'];
+    protected $listeners = ['refresh' => '$refresh', 'delete' => 'delete'];
     
     protected $queryString = [
         'search' => ['except' => ''],
@@ -34,6 +35,11 @@ class ToolsManager extends Component
     protected $rules = [
         'name' => 'required|string|max:255|unique:tools,name',
     ];
+    
+    public function goToPage($pageNumber)
+    {
+        $this->setPage($pageNumber);
+    }
     
     public function sortBy($field)
     {
@@ -99,25 +105,50 @@ class ToolsManager extends Component
                 'name' => $this->name,
             ]);
             
-            $this->dispatch('notify', ['message' => 'Outil mis à jour avec succès!']);
+            $this->dispatch('notify', [
+                'type' => 'success',
+                'title' => 'Mise à jour réussie',
+                'message' => 'L\'outil a été mis à jour avec succès!',
+                'toast' => true,
+                'position' => 'top-end',
+                'timer' => 3000,
+                'showConfirmButton' => false
+            ]);
         } else {
             Tool::create([
                 'name' => $this->name,
             ]);
             
-            $this->dispatch('notify', ['message' => 'Outil ajouté avec succès!']);
+            $this->dispatch('notify', [
+                'type' => 'success',
+                'title' => 'Ajout réussi',
+                'message' => 'Nouvel outil ajouté avec succès!',
+                'toast' => true,
+                'position' => 'top-end',
+                'timer' => 3000,
+                'showConfirmButton' => false
+            ]);
         }
         
         $this->closeModal();
         $this->reset(['toolId', 'name', 'isEditing']);
     }
     
-    public function delete(Tool $tool)
+    public function delete($id)
     {
+        $tool = Tool::findOrFail($id);
         // Check if tool is used in milestones before deleting
         $tool->delete();
         
-        $this->dispatch('notify', ['message' => 'Outil supprimé avec succès!']);
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'title' => 'Suppression réussie',
+            'message' => 'L\'outil a été supprimé avec succès!',
+            'toast' => true,
+            'position' => 'top-end',
+            'timer' => 3000,
+            'showConfirmButton' => false
+        ]);
     }
     
     public function render()

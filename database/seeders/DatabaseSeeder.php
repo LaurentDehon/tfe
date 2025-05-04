@@ -17,18 +17,17 @@ class DatabaseSeeder extends Seeder
         // Création d'un utilisateur admin
         User::factory()->create([
             'name' => 'Admin',
-            'email' => 'admin@admin.com',
+            'email' => 'admin@tfe.com',
             'password' => Hash::make('admin'),
-        ]);
-        
-        // Création d'un utilisateur de test (non utilisé dans notre application sans authentification)
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'is_admin' => true,
         ]);
         
         // Exécution des seeders personnalisés
         $this->call([
+            UserSeeder::class,
+            CourseSeeder::class,
+            ToolSeeder::class,
+            ConceptSeeder::class,
             MilestoneSeeder::class,
         ]);
     }

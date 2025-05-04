@@ -16,13 +16,14 @@ class ConceptsManager extends Component
     public $conceptId;
     public $name;
     public $isEditing = false;
+    public $page = 1;
     
     public $search = '';
     public $sortField = 'name';
     public $sortDirection = 'asc';
     public $perPage = 10;
     
-    protected $listeners = ['refresh' => '$refresh'];
+    protected $listeners = ['refresh' => '$refresh', 'concepts-manager:delete' => 'delete'];
     
     protected $queryString = [
         'search' => ['except' => ''],
@@ -99,25 +100,55 @@ class ConceptsManager extends Component
                 'name' => $this->name,
             ]);
             
-            $this->dispatch('notify', ['message' => 'Concept mis à jour avec succès!']);
+            $this->dispatch('notify', [
+                'type' => 'success',
+                'title' => 'Mise à jour réussie',
+                'message' => 'Le concept a été mis à jour avec succès!',
+                'toast' => true,
+                'position' => 'top-end',
+                'timer' => 3000,
+                'showConfirmButton' => false
+            ]);
         } else {
             Concept::create([
                 'name' => $this->name,
             ]);
             
-            $this->dispatch('notify', ['message' => 'Concept ajouté avec succès!']);
+            $this->dispatch('notify', [
+                'type' => 'success',
+                'title' => 'Ajout réussi',
+                'message' => 'Nouveau concept ajouté avec succès!',
+                'toast' => true,
+                'position' => 'top-end',
+                'timer' => 3000,
+                'showConfirmButton' => false
+            ]);
         }
         
         $this->closeModal();
         $this->reset(['conceptId', 'name', 'isEditing']);
     }
     
-    public function delete(Concept $concept)
+    public function goToPage($pageNumber)
     {
+        $this->setPage($pageNumber);
+    }
+    
+    public function delete($id)
+    {
+        $concept = Concept::findOrFail($id);
         // Check if concept is used in milestones before deleting
         $concept->delete();
         
-        $this->dispatch('notify', ['message' => 'Concept supprimé avec succès!']);
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'title' => 'Suppression réussie',
+            'message' => 'Le concept a été supprimé avec succès!',
+            'toast' => true,
+            'position' => 'top-end',
+            'timer' => 3000,
+            'showConfirmButton' => false
+        ]);
     }
     
     public function render()

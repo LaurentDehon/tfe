@@ -22,13 +22,14 @@ class UsersManager extends Component
     public $password_confirmation;
     public $isEditing = false;
     public $isAdmin = false;
+    public $page = 1;
     
     public $search = '';
     public $sortField = 'name';
     public $sortDirection = 'asc';
     public $perPage = 10;
     
-    protected $listeners = ['refresh' => '$refresh'];
+    protected $listeners = ['refresh' => '$refresh', 'users-manager:delete' => 'delete'];
     
     protected $queryString = [
         'search' => ['except' => ''],
@@ -132,7 +133,15 @@ class UsersManager extends Component
             
             $user->update($userData);
             
-            $this->dispatch('notify', ['message' => 'Utilisateur mis à jour avec succès!']);
+            $this->dispatch('notify', [
+                'type' => 'success',
+                'title' => 'Mise à jour réussie',
+                'message' => 'L\'utilisateur a été mis à jour avec succès!',
+                'toast' => true,
+                'position' => 'top-end',
+                'timer' => 3000,
+                'showConfirmButton' => false
+            ]);
         } else {
             User::create([
                 'name' => $this->name,
@@ -141,22 +150,54 @@ class UsersManager extends Component
                 'is_admin' => $this->isAdmin ? 1 : 0,
             ]);
             
-            $this->dispatch('notify', ['message' => 'Utilisateur ajouté avec succès!']);
+            $this->dispatch('notify', [
+                'type' => 'success',
+                'title' => 'Ajout réussi',
+                'message' => 'Nouvel utilisateur ajouté avec succès!',
+                'toast' => true,
+                'position' => 'top-end',
+                'timer' => 3000,
+                'showConfirmButton' => false
+            ]);
         }
         
         $this->closeModal();
     }
     
-    public function delete(User $user)
+    public function delete($id)
     {
+        $user = User::findOrFail($id);
+        
         // Ne pas supprimer l'utilisateur actuellement connecté
         if ($user->id === Auth::id()) {
-            $this->dispatch('notify', ['message' => 'Vous ne pouvez pas supprimer votre propre compte!', 'type' => 'error']);
+            $this->dispatch('notify', [
+                'type' => 'error',
+                'title' => 'Action impossible',
+                'message' => 'Vous ne pouvez pas supprimer votre propre compte!',
+                'toast' => true,
+                'position' => 'top-end',
+                'timer' => 4000,
+                'showConfirmButton' => false
+            ]);
             return;
         }
         
         $user->delete();
-        $this->dispatch('notify', ['message' => 'Utilisateur supprimé avec succès!']);
+        
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'title' => 'Suppression réussie',
+            'message' => 'L\'utilisateur a été supprimé avec succès!',
+            'toast' => true,
+            'position' => 'top-end',
+            'timer' => 3000,
+            'showConfirmButton' => false
+        ]);
+    }
+    
+    public function goToPage($pageNumber)
+    {
+        $this->setPage($pageNumber);
     }
     
     public function render()

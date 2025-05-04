@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,7 +26,7 @@
     <!-- Livewire Styles -->
     @livewireStyles
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 flex flex-col min-h-screen">
     <header class="bg-white shadow">
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <nav class="flex justify-between">
@@ -75,7 +75,7 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex-grow">
         <div class="pb-6">
             <h1 class="text-3xl font-bold text-gray-900">@yield('header', 'Gestion des TFE')</h1>
         </div>
@@ -95,7 +95,7 @@
         @yield('content')
     </main>
 
-    <footer class="bg-white shadow-inner mt-10 py-6">
+    <footer class="bg-white shadow-inner py-6 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
             &copy; {{ date('Y') }} Gestion des TFE - Tous droits réservés
         </div>

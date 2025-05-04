@@ -1,13 +1,13 @@
-<div>
+<div id="tools-manager" wire:id="{{ $_instance->getId() }}">
     <div class="mb-6 flex justify-between items-center">
-        <h1 class="text-2xl font-semibold text-gray-900">Gestion des outils</h1>
+        <h1 class="text-2xl font-semibold text-gray-900 pe-40">Gestion des outils</h1>
         
         <div class="flex items-center gap-4">
             <div class="flex items-center gap-2">
                 <div class="relative">
                     <input 
                         type="text" 
-                        wire:model.debounce.300ms="search"
+                        wire:model.live.debounce.300ms="search"
                         placeholder="Rechercher..."
                         class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                     >
@@ -16,6 +16,9 @@
                             <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                         </svg>
                     </div>
+                    @if($search)
+                        <button wire:click="$set('search', '')" class="absolute right-3 top-2.5 transition-colors">✕</button>
+                    @endif
                 </div>
                 
                 <select wire:model.live="perPage" class="pl-3 pr-10 py-2 border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full">
@@ -28,7 +31,7 @@
             
             <button 
                 wire:click="openModal" 
-                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
+                class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg flex items-center"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
@@ -87,12 +90,12 @@
                             <div class="text-sm font-medium text-gray-900">{{ $tool->name }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-500">{{ $tool->created_at->format('d/m/Y') }}</div>
+                            <div class="text-sm text-gray-500">{{ $tool->created_at->format('d/m/Y H:i') }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                             <button 
                                 wire:click="edit({{ $tool->id }})" 
-                                class="text-blue-600 hover:text-blue-900"
+                                class="text-sky-600 hover:text-sky-900"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -100,8 +103,7 @@
                                 <span class="sr-only">Modifier</span>
                             </button>
                             <button 
-                                wire:click="delete({{ $tool->id }})"
-                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet outil ?')" 
+                                onclick="confirmDelete({{ $tool->id }})" 
                                 class="text-red-600 hover:text-red-900"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -123,7 +125,73 @@
     </div>
     
     <div class="mt-4">
-        {{ $tools->links() }}
+        @if($tools->hasPages())
+            <div class="flex items-center justify-between bg-white px-4 py-3 sm:px-6 rounded-lg shadow-sm">
+                <div class="flex flex-1 items-center justify-between sm:hidden">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Page <span class="font-medium">{{ $tools->currentPage() }}</span> sur <span class="font-medium">{{ $tools->lastPage() }}</span>
+                        </p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button wire:click="goToPage(1)" class="{{ $tools->onFirstPage() ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' }} relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition" {{ $tools->onFirstPage() ? 'disabled' : '' }}>
+                            «
+                        </button>
+                        <button wire:click="previousPage" class="{{ $tools->onFirstPage() ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' }} relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition" {{ $tools->onFirstPage() ? 'disabled' : '' }}>
+                            ‹
+                        </button>
+                        <button wire:click="nextPage" class="{{ !$tools->hasMorePages() ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' }} relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition" {{ !$tools->hasMorePages() ? 'disabled' : '' }}>
+                            ›
+                        </button>
+                        <button wire:click="goToPage({{ $tools->lastPage() }})" class="{{ !$tools->hasMorePages() ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' }} relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition" {{ !$tools->hasMorePages() ? 'disabled' : '' }}>
+                            »
+                        </button>
+                    </div>
+                </div>
+                <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Affichage de <span class="font-medium">{{ $tools->firstItem() ?: 0 }}</span> à <span class="font-medium">{{ $tools->lastItem() ?: 0 }}</span> sur <span class="font-medium">{{ $tools->total() }}</span> résultats
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                            <button wire:click="goToPage(1)" class="{{ $tools->onFirstPage() ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' }} relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0" {{ $tools->onFirstPage() ? 'disabled' : '' }}>
+                                <span class="sr-only">Première page</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            <button wire:click="previousPage" class="{{ $tools->onFirstPage() ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' }} relative inline-flex items-center px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0" {{ $tools->onFirstPage() ? 'disabled' : '' }}>
+                                <span class="sr-only">Page précédente</span>
+                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            
+                            <span class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">
+                                Page {{ $tools->currentPage() }} sur {{ $tools->lastPage() }}
+                            </span>
+                            
+                            <button wire:click="nextPage" class="{{ !$tools->hasMorePages() ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' }} relative inline-flex items-center px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0" {{ !$tools->hasMorePages() ? 'disabled' : '' }}>
+                                <span class="sr-only">Page suivante</span>
+                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            <button wire:click="goToPage({{ $tools->lastPage() }})" class="{{ !$tools->hasMorePages() ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer' }} relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0" {{ !$tools->hasMorePages() ? 'disabled' : '' }}>
+                                <span class="sr-only">Dernière page</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M4.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L8.586 10 4.293 14.293a1 1 0 000 1.414zm6 0a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L15.586 10l-4.293 4.293a1 1 0 000 1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        @else
+            <p class="text-sm text-gray-700">Affichage de tous les résultats</p>
+        @endif
     </div>
     
     <!-- Modal pour ajouter/modifier un outil -->
@@ -179,14 +247,4 @@
             </div>
         </div>
     @endif
-
-    <!-- Notifications -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            window.addEventListener('notify', event => {
-                // Vous pouvez utiliser une bibliothèque comme Toastr ou Sweet Alert ici
-                alert(event.detail.message);
-            });
-        });
-    </script>
 </div>
