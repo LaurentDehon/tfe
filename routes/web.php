@@ -1,21 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\MilestoneController;
-use App\Http\Controllers\CommentController;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application.
-|
-*/
 
 // Routes principales
 Route::get('/', function () {
-    return redirect()->route('timeline');
+    return redirect()->route('timeline'); 
 });
 
 // Page Timeline
