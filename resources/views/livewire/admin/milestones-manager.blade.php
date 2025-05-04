@@ -131,7 +131,13 @@
                                 @error('milestone.description') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                             </div>
                             
-                            <!-- Section outils avec autocomplétion -->
+                            <div class="col-span-6 sm:col-span-3">
+                                <label for="timing_months" class="block text-sm font-medium text-gray-700 mb-1">Timing (en mois avant présentation)</label>
+                                <input type="number" id="timing_months" wire:model="milestone.timing_months" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5 px-4">
+                                <p class="mt-1 text-xs text-gray-500">Nombre de mois idéal avant la présentation finale (ex: 12 pour "1 an avant")</p>
+                                @error('milestone.timing_months') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
+                            </div>
+                            
                             <div class="col-span-6">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Outils</label>
                                 <div class="relative">

@@ -13,7 +13,8 @@ class Milestone extends Model
         'tools',
         'concepts',
         'courses',
-        'position'
+        'position',
+        'timing_months'
     ];
 
     public function getToolsArrayAttribute()

@@ -51,6 +51,19 @@
                                         </div>
                                     </div>
                                     
+                                    <!-- Timing -->
+                                    @if($milestone->timing_months)
+                                    <div class="mb-6">
+                                        <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Timing recommandé</h4>
+                                        <div class="flex items-center text-purple-800">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                                            </svg>
+                                            <span>{{ $milestone->timing_months }} mois avant la date de présentation finale</span>
+                                        </div>
+                                    </div>
+                                    @endif
+                                    
                                     <!-- Tools -->
                                     @if(count($milestone->toolsArray) > 0)
                                         <div class="mb-6">

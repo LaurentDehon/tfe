@@ -22,7 +22,6 @@ class DatabaseSeeder extends Seeder
         // Exécution des seeders personnalisés
         $this->call([
             MilestoneSeeder::class,
-            CommentSeeder::class,
         ]);
     }
 }

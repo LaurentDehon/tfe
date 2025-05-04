@@ -63,7 +63,8 @@ class MilestonesManager extends Component
         'tools' => '',
         'concepts' => '',
         'courses' => '',
-        'position' => 0
+        'position' => 0,
+        'timing_months' => null
     ];
 
     public function mount()
@@ -90,6 +91,7 @@ class MilestonesManager extends Component
                 'concepts' => $milestone->concepts,
                 'courses' => $milestone->courses,
                 'position' => $milestone->position,
+                'timing_months' => $milestone->timing_months,
             ];
             $this->milestoneDocuments = $milestone->documents;
             $this->isEditing = true;
@@ -122,7 +124,8 @@ class MilestonesManager extends Component
             'tools' => '',
             'concepts' => '',
             'courses' => '',
-            'position' => 0
+            'position' => 0,
+            'timing_months' => null
         ];
         
         $this->documentToUpload = null;
@@ -358,6 +361,7 @@ class MilestonesManager extends Component
             'milestone.concepts' => 'nullable|string',
             'milestone.courses' => 'nullable|string',
             'milestone.position' => 'required|integer|min:0',
+            'milestone.timing_months' => 'nullable|integer',
         ]);
 
         if ($this->isEditing) {
