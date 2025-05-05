@@ -26,15 +26,15 @@
                                 >
                                     Détails
                                 </button>
+                                @if(count($milestone->documents) > 0)
                                 <button
                                     wire:click="setActiveTab('documents')"
                                     class="py-4 px-6 text-center border-b-2 font-medium text-sm {{ $activeTab === 'documents' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}"
                                 >
                                     Documents
-                                    @if(count($milestone->documents) > 0)
-                                        <span class="ml-1 px-2 py-0.5 text-xs bg-blue-100 text-blue-600 rounded-full">{{ count($milestone->documents) }}</span>
-                                    @endif
+                                    <span class="ml-1 px-2 py-0.5 text-xs bg-blue-100 text-blue-600 rounded-full">{{ count($milestone->documents) }}</span>
                                 </button>
+                                @endif
                             </nav>
                         </div>
 
@@ -70,8 +70,17 @@
                                             <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Outils</h4>
                                             <div class="flex flex-wrap gap-1">
                                                 @foreach($milestone->toolsArray as $tool)
-                                                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                                        {{ $tool }}
+                                                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-sky-100 text-sky-800 {{ isset($toolsWithUrls[$tool]) ? 'cursor-pointer hover:bg-blue-200' : '' }}">
+                                                        @if(isset($toolsWithUrls[$tool]))
+                                                            <a href="{{ $toolsWithUrls[$tool] }}" target="_blank" class="flex items-center">
+                                                                {{ $tool }}
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                                </svg>
+                                                            </a>
+                                                        @else
+                                                            {{ $tool }}
+                                                        @endif
                                                     </span>
                                                 @endforeach
                                             </div>
@@ -84,7 +93,7 @@
                                             <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Concepts</h4>
                                             <div class="flex flex-wrap gap-1">
                                                 @foreach($milestone->conceptsArray as $concept)
-                                                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-800">
                                                         {{ $concept }}
                                                     </span>
                                                 @endforeach
@@ -98,7 +107,7 @@
                                             <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Cours associés</h4>
                                             <div class="flex flex-wrap gap-1">
                                                 @foreach($milestone->coursesArray as $course)
-                                                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-violet-100 text-violet-800">
                                                         {{ $course }}
                                                     </span>
                                                 @endforeach

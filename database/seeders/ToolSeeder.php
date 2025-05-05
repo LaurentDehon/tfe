@@ -13,11 +13,9 @@ class ToolSeeder extends Seeder
      */
     public function run(): void
     {
-        // Création de 15 tools
-        for ($i = 1; $i <= 15; $i++) {
-            Tool::create([
-                'name' => 'tool' . sprintf('%02d', $i),
-            ]);
-        }
+        Tool::create([
+            'name' => 'Lucidchart',
+            'url' => 'https://www.lucidchart.com/pages/fr',
+        ]);      
     }
 }

@@ -13,11 +13,8 @@ class ConceptSeeder extends Seeder
      */
     public function run(): void
     {
-        // Création de 15 concepts
-        for ($i = 1; $i <= 15; $i++) {
-            Concept::create([
-            'name' => 'concept' . sprintf('%02d', $i),
-            ]);
-        }
+        Concept::create([
+            'name' => 'Business Process Modeling Notation (BPMN)',
+        ]);
     }
 }

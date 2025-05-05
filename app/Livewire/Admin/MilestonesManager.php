@@ -43,7 +43,11 @@ class MilestonesManager extends Component
     public $showConceptsDropdown = false;
     public $showCoursesDropdown = false;
     
-    protected $listeners = ['hideDropdown' => 'handleHideDropdown'];
+    protected $listeners = [
+        'hideDropdown' => 'handleHideDropdown',
+        'deleteMilestone' => 'deleteMilestone',
+        'milestones-manager:delete' => 'deleteMilestone'
+    ];
     
     public function handleHideDropdown($data)
     {
@@ -373,7 +377,7 @@ class MilestonesManager extends Component
 
         $this->closeModal();
         $this->refreshMilestones();
-        session()->flash('message', $this->isEditing ? 'Jalon mis à jour avec succès!' : 'Jalon créé avec succès!');
+        $this->dispatch('notify', type: 'success', title: 'Succès', message: 'Le jalon a été enregistré avec succès!');        
     }
 
     public function uploadDocument()
@@ -458,7 +462,7 @@ class MilestonesManager extends Component
             $milestone->delete();
             
             $this->refreshMilestones();
-            session()->flash('message', 'Jalon supprimé avec succès!');
+            $this->dispatch('notify', type: 'success', title: 'Suppression réussie', message: 'Le jalon a été supprimé avec succès!');
         }
     }
 

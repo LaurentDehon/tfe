@@ -63,6 +63,22 @@
                         </div>
                     </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <div class="flex items-center cursor-pointer" wire:click="sortBy('url')">
+                            URL
+                            @if($sortField === 'url')
+                                @if($sortDirection === 'asc')
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                    </svg>
+                                @else
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                @endif
+                            @endif
+                        </div>
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <div class="flex items-center cursor-pointer" wire:click="sortBy('created_at')">
                             Date de création
                             @if($sortField === 'created_at')
@@ -90,6 +106,13 @@
                             <div class="text-sm font-medium text-gray-900">{{ $tool->name }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
+                            @if($tool->url)
+                                <a href="{{ $tool->url }}" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 hover:underline">{{ $tool->url }}</a>
+                            @else
+                                <span class="text-sm text-gray-400">Non définie</span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-500">{{ $tool->created_at->format('d/m/Y H:i') }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
@@ -115,7 +138,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">
+                        <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
                             Aucun outil trouvé. Cliquez sur "Nouvel outil" pour en ajouter un.
                         </td>
                     </tr>
@@ -223,6 +246,20 @@
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
                             >
                             @error('name') 
+                                <span class="text-red-500 text-sm mt-1">{{ $message }}</span> 
+                            @enderror
+                        </div>
+
+                        <div class="mt-4">
+                            <label for="url" class="block text-sm font-medium text-gray-700 mb-1">URL</label>
+                            <input 
+                                type="url" 
+                                id="url" 
+                                wire:model="url" 
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3"
+                                placeholder="https://exemple.com"
+                            >
+                            @error('url') 
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span> 
                             @enderror
                         </div>

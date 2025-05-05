@@ -15,6 +15,7 @@ class ToolsManager extends Component
     public $showModal = false;
     public $toolId;
     public $name;
+    public $url; 
     public $isEditing = false;
     public $page = 1;
     
@@ -34,6 +35,7 @@ class ToolsManager extends Component
     
     protected $rules = [
         'name' => 'required|string|max:255|unique:tools,name',
+        'url' => 'nullable|url|max:255',
     ];
     
     public function goToPage($pageNumber)
@@ -74,7 +76,7 @@ class ToolsManager extends Component
     
     public function openModal()
     {
-        $this->reset(['toolId', 'name', 'isEditing']);
+        $this->reset(['toolId', 'name', 'url', 'isEditing']);
         $this->showModal = true;
     }
     
@@ -87,6 +89,7 @@ class ToolsManager extends Component
     {
         $this->toolId = $tool->id;
         $this->name = $tool->name;
+        $this->url = $tool->url;
         $this->isEditing = true;
         
         $this->showModal = true;
@@ -106,19 +109,21 @@ class ToolsManager extends Component
             $tool = Tool::find($this->toolId);
             $tool->update([
                 'name' => $this->name,
+                'url' => $this->url,
             ]);
             
             $this->dispatch('notify', type: 'success', title: 'Mise à jour réussie', message: 'L\'outil a été mis à jour avec succès!');
         } else {
             Tool::create([
                 'name' => $this->name,
+                'url' => $this->url,
             ]);
             
             $this->dispatch('notify', type: 'success', title: 'Ajout réussi', message: 'Nouvel outil ajouté avec succès!');
         }
         
         $this->closeModal();
-        $this->reset(['toolId', 'name', 'isEditing']);
+        $this->reset(['toolId', 'name', 'url', 'isEditing']);
     }
     
     public function delete($id)

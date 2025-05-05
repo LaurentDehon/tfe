@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Timeline des jalons')
-@section('header', 'Timeline des jalons du TFE')
+@section('title', 'Timeline du TFE')
+@section('header', 'Timeline du TFE')
 
 @section('content')
     <div class="bg-white shadow-sm rounded-lg p-6">

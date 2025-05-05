@@ -13,11 +13,8 @@ class CourseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Création de 15 courses
-        for ($i = 1; $i <= 15; $i++) {
-            Course::create([
-                'name' => 'course' . sprintf('%02d', $i),
-            ]);
-        }
+        Course::create([
+            'name' => 'UE 877 : Projet d\'analyse et de conception',
+        ]);
     }
 }
