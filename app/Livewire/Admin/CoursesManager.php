@@ -58,7 +58,7 @@ class CoursesManager extends Component
     }
     
     public function updated($propertyName)
-    {
+    {        
         $this->validateOnly($propertyName);
     }
     
@@ -84,14 +84,17 @@ class CoursesManager extends Component
         $this->name = $course->name;
         $this->isEditing = true;
         
-        // Update validation rules to ignore the current course being edited
-        $this->rules['name'] = 'required|string|max:255|unique:courses,name,' . $this->courseId;
-        
         $this->showModal = true;
     }
     
     public function save()
     {
+        if ($this->isEditing) {
+            $this->rules['name'] = 'required|string|max:255|unique:courses,name,' . $this->courseId;
+        } else {
+            $this->rules['name'] = 'required|string|max:255|unique:courses,name';
+        }
+        
         $this->validate();
         
         if ($this->isEditing) {
@@ -100,29 +103,13 @@ class CoursesManager extends Component
                 'name' => $this->name,
             ]);
             
-            $this->dispatch('notify', [
-                'type' => 'success',
-                'title' => 'Mise à jour réussie',
-                'message' => 'Le cours a été mis à jour avec succès!',
-                'toast' => true,
-                'position' => 'top-end',
-                'timer' => 3000,
-                'showConfirmButton' => false
-            ]);
+            $this->dispatch('notify', type: 'success', title: 'Mise à jour réussie', message: 'Le cours a été mis à jour avec succès!');
         } else {
             Course::create([
                 'name' => $this->name,
             ]);
             
-            $this->dispatch('notify', [
-                'type' => 'success',
-                'title' => 'Ajout réussi',
-                'message' => 'Nouveau cours ajouté avec succès!',
-                'toast' => true,
-                'position' => 'top-end',
-                'timer' => 3000,
-                'showConfirmButton' => false
-            ]);
+            $this->dispatch('notify', type: 'success', title: 'Ajout réussi', message: 'Nouveau cours ajouté avec succès!');
         }
         
         $this->closeModal();
@@ -140,15 +127,7 @@ class CoursesManager extends Component
         // Check if course is used in milestones before deleting
         $course->delete();
         
-        $this->dispatch('notify', [
-            'type' => 'success',
-            'title' => 'Suppression réussie',
-            'message' => 'Le cours a été supprimé avec succès!',
-            'toast' => true,
-            'position' => 'top-end',
-            'timer' => 3000,
-            'showConfirmButton' => false
-        ]);
+        $this->dispatch('notify', type: 'success', title: 'Suppression réussie', message: 'Le cours a été supprimé avec succès!');
     }
     
     public function render()

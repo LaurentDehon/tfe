@@ -16,7 +16,7 @@ class CourseSeeder extends Seeder
         // Création de 15 courses
         for ($i = 1; $i <= 15; $i++) {
             Course::create([
-                'name' => 'course' . $i,
+                'name' => 'course' . sprintf('%02d', $i),
             ]);
         }
     }

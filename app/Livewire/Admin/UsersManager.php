@@ -74,7 +74,7 @@ class UsersManager extends Component
     }
     
     public function updated($propertyName)
-    {
+    {        
         $this->validateOnly($propertyName);
     }
     
@@ -105,15 +105,23 @@ class UsersManager extends Component
         $this->isAdmin = $user->is_admin ? true : false;
         $this->isEditing = true;
         
-        // Mettre à jour les règles de validation pour ignorer l'utilisateur en cours d'édition
-        $this->rules['email'] = 'required|email|unique:users,email,' . $this->userId;
-        $this->rules['password'] = 'nullable|min:8|confirmed'; // Le mot de passe est optionnel lors de l'édition
-        
         $this->showModal = true;
     }
     
     public function save()
     {
+        if ($this->isEditing) {
+            $this->rules['email'] = 'required|email|unique:users,email,' . $this->userId;
+            $this->rules['password'] = 'nullable|min:8|confirmed';
+            
+            if (empty($this->password)) {
+                unset($this->rules['password']);
+            }
+        } else {
+            $this->rules['email'] = 'required|email|unique:users,email';
+            $this->rules['password'] = 'required|min:8|confirmed';
+        }
+        
         // Valider les données
         $validatedData = $this->validate();
         
@@ -126,22 +134,13 @@ class UsersManager extends Component
                 'is_admin' => $this->isAdmin ? 1 : 0,
             ];
             
-            // Mettre à jour le mot de passe seulement s'il est fourni
             if (!empty($this->password)) {
                 $userData['password'] = Hash::make($this->password);
             }
             
             $user->update($userData);
             
-            $this->dispatch('notify', [
-                'type' => 'success',
-                'title' => 'Mise à jour réussie',
-                'message' => 'L\'utilisateur a été mis à jour avec succès!',
-                'toast' => true,
-                'position' => 'top-end',
-                'timer' => 3000,
-                'showConfirmButton' => false
-            ]);
+            $this->dispatch('notify', type: 'success', title: 'Mise à jour réussie', message: 'L\'utilisateur a été mis à jour avec succès!');
         } else {
             User::create([
                 'name' => $this->name,
@@ -150,15 +149,7 @@ class UsersManager extends Component
                 'is_admin' => $this->isAdmin ? 1 : 0,
             ]);
             
-            $this->dispatch('notify', [
-                'type' => 'success',
-                'title' => 'Ajout réussi',
-                'message' => 'Nouvel utilisateur ajouté avec succès!',
-                'toast' => true,
-                'position' => 'top-end',
-                'timer' => 3000,
-                'showConfirmButton' => false
-            ]);
+            $this->dispatch('notify', type: 'success', title: 'Ajout réussi', message: 'Nouvel utilisateur ajouté avec succès!');
         }
         
         $this->closeModal();
@@ -168,31 +159,14 @@ class UsersManager extends Component
     {
         $user = User::findOrFail($id);
         
-        // Ne pas supprimer l'utilisateur actuellement connecté
         if ($user->id === Auth::id()) {
-            $this->dispatch('notify', [
-                'type' => 'error',
-                'title' => 'Action impossible',
-                'message' => 'Vous ne pouvez pas supprimer votre propre compte!',
-                'toast' => true,
-                'position' => 'top-end',
-                'timer' => 4000,
-                'showConfirmButton' => false
-            ]);
+            $this->dispatch('notify', type: 'error', title: 'Action impossible', message: 'Vous ne pouvez pas supprimer votre propre compte!');
             return;
         }
         
         $user->delete();
         
-        $this->dispatch('notify', [
-            'type' => 'success',
-            'title' => 'Suppression réussie',
-            'message' => 'L\'utilisateur a été supprimé avec succès!',
-            'toast' => true,
-            'position' => 'top-end',
-            'timer' => 3000,
-            'showConfirmButton' => false
-        ]);
+        $this->dispatch('notify', type: 'success', title: 'Suppression réussie', message: 'L\'utilisateur a été supprimé avec succès!');
     }
     
     public function goToPage($pageNumber)

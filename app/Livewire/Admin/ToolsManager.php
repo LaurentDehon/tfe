@@ -63,7 +63,7 @@ class ToolsManager extends Component
     }
     
     public function updated($propertyName)
-    {
+    {        
         $this->validateOnly($propertyName);
     }
     
@@ -89,14 +89,17 @@ class ToolsManager extends Component
         $this->name = $tool->name;
         $this->isEditing = true;
         
-        // Update validation rules to ignore the current tool being edited
-        $this->rules['name'] = 'required|string|max:255|unique:tools,name,' . $this->toolId;
-        
         $this->showModal = true;
     }
     
     public function save()
     {
+        if ($this->isEditing) {
+            $this->rules['name'] = 'required|string|max:255|unique:tools,name,' . $this->toolId;
+        } else {
+            $this->rules['name'] = 'required|string|max:255|unique:tools,name';
+        }
+
         $this->validate();
         
         if ($this->isEditing) {
@@ -105,29 +108,13 @@ class ToolsManager extends Component
                 'name' => $this->name,
             ]);
             
-            $this->dispatch('notify', [
-                'type' => 'success',
-                'title' => 'Mise à jour réussie',
-                'message' => 'L\'outil a été mis à jour avec succès!',
-                'toast' => true,
-                'position' => 'top-end',
-                'timer' => 3000,
-                'showConfirmButton' => false
-            ]);
+            $this->dispatch('notify', type: 'success', title: 'Mise à jour réussie', message: 'L\'outil a été mis à jour avec succès!');
         } else {
             Tool::create([
                 'name' => $this->name,
             ]);
             
-            $this->dispatch('notify', [
-                'type' => 'success',
-                'title' => 'Ajout réussi',
-                'message' => 'Nouvel outil ajouté avec succès!',
-                'toast' => true,
-                'position' => 'top-end',
-                'timer' => 3000,
-                'showConfirmButton' => false
-            ]);
+            $this->dispatch('notify', type: 'success', title: 'Ajout réussi', message: 'Nouvel outil ajouté avec succès!');
         }
         
         $this->closeModal();
@@ -140,15 +127,7 @@ class ToolsManager extends Component
         // Check if tool is used in milestones before deleting
         $tool->delete();
         
-        $this->dispatch('notify', [
-            'type' => 'success',
-            'title' => 'Suppression réussie',
-            'message' => 'L\'outil a été supprimé avec succès!',
-            'toast' => true,
-            'position' => 'top-end',
-            'timer' => 3000,
-            'showConfirmButton' => false
-        ]);
+        $this->dispatch('notify', type: 'success', title: 'Suppression réussie', message: 'L\'outil a été supprimé avec succès!');
     }
     
     public function render()

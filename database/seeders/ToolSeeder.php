@@ -16,7 +16,7 @@ class ToolSeeder extends Seeder
         // Création de 15 tools
         for ($i = 1; $i <= 15; $i++) {
             Tool::create([
-                'name' => 'tool' . $i,
+                'name' => 'tool' . sprintf('%02d', $i),
             ]);
         }
     }

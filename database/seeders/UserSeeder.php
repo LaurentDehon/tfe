@@ -17,8 +17,8 @@ class UserSeeder extends Seeder
         // Création de 15 users
         for ($i = 1; $i <= 15; $i++) {
             User::create([
-                'name' => 'user' . $i,
-                'email' => 'user' . $i . '@example.com',
+                'name' => 'user' . sprintf('%02d', $i),
+                'email' => 'user' . sprintf('%02d', $i) . '@example.com',
                 'password' => Hash::make('password'),
                 'is_admin' => false,
             ]);

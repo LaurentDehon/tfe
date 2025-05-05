@@ -31,7 +31,7 @@
             
             <button 
                 wire:click="openModal" 
-                class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center"
+                class="bg-stone-600 hover:bg-stone-700 text-white px-4 py-2 rounded-lg flex items-center"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
@@ -127,7 +127,7 @@
                             <div class="text-sm text-gray-500">{{ $user->created_at->format('d/m/Y H:i') }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            @if($user->name === 'Admin')
+                            @if($user->is_admin)
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
                                     Administrateur
                                 </span>
@@ -140,7 +140,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                             <button 
                                 wire:click="edit({{ $user->id }})" 
-                                class="text-indigo-600 hover:text-indigo-900"
+                                class="text-stone-600 hover:text-stone-900"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -149,7 +149,8 @@
                             </button>
                             <button 
                                 onclick="confirmDelete({{ $user->id }}, 'users-manager')" 
-                                class="text-red-600 hover:text-red-900"
+                                class="text-red-600 hover:text-red-900 {{ $user->is_admin ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                {{ $user->is_admin ? 'disabled' : '' }}
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

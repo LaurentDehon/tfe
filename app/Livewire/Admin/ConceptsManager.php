@@ -58,7 +58,7 @@ class ConceptsManager extends Component
     }
     
     public function updated($propertyName)
-    {
+    {        
         $this->validateOnly($propertyName);
     }
     
@@ -84,14 +84,17 @@ class ConceptsManager extends Component
         $this->name = $concept->name;
         $this->isEditing = true;
         
-        // Update validation rules to ignore the current concept being edited
-        $this->rules['name'] = 'required|string|max:255|unique:concepts,name,' . $this->conceptId;
-        
         $this->showModal = true;
     }
     
     public function save()
     {
+        if ($this->isEditing) {
+            $this->rules['name'] = 'required|string|max:255|unique:concepts,name,' . $this->conceptId;
+        } else {
+            $this->rules['name'] = 'required|string|max:255|unique:concepts,name';
+        }
+        
         $this->validate();
         
         if ($this->isEditing) {
@@ -100,29 +103,13 @@ class ConceptsManager extends Component
                 'name' => $this->name,
             ]);
             
-            $this->dispatch('notify', [
-                'type' => 'success',
-                'title' => 'Mise à jour réussie',
-                'message' => 'Le concept a été mis à jour avec succès!',
-                'toast' => true,
-                'position' => 'top-end',
-                'timer' => 3000,
-                'showConfirmButton' => false
-            ]);
+            $this->dispatch('notify', type: 'success', title: 'Mise à jour réussie', message: 'Le concept a été mis à jour avec succès!');
         } else {
             Concept::create([
                 'name' => $this->name,
             ]);
             
-            $this->dispatch('notify', [
-                'type' => 'success',
-                'title' => 'Ajout réussi',
-                'message' => 'Nouveau concept ajouté avec succès!',
-                'toast' => true,
-                'position' => 'top-end',
-                'timer' => 3000,
-                'showConfirmButton' => false
-            ]);
+            $this->dispatch('notify', type: 'success', title: 'Ajout réussi', message: 'Nouveau concept ajouté avec succès!');
         }
         
         $this->closeModal();
@@ -140,15 +127,7 @@ class ConceptsManager extends Component
         // Check if concept is used in milestones before deleting
         $concept->delete();
         
-        $this->dispatch('notify', [
-            'type' => 'success',
-            'title' => 'Suppression réussie',
-            'message' => 'Le concept a été supprimé avec succès!',
-            'toast' => true,
-            'position' => 'top-end',
-            'timer' => 3000,
-            'showConfirmButton' => false
-        ]);
+        $this->dispatch('notify', type: 'success', title: 'Suppression réussie', message: 'Le concept a été supprimé avec succès!');
     }
     
     public function render()

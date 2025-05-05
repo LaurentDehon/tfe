@@ -16,7 +16,7 @@ class ConceptSeeder extends Seeder
         // Création de 15 concepts
         for ($i = 1; $i <= 15; $i++) {
             Concept::create([
-                'name' => 'concept' . $i,
+            'name' => 'concept' . sprintf('%02d', $i),
             ]);
         }
     }
