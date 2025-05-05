@@ -28,7 +28,7 @@
                 @forelse($milestones as $milestone)
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
+                            <div class="flex items-center justify-center">
                                 <div class="flex flex-col mr-3">
                                     <!-- Bouton monter -->
                                     <button wire:click="moveUp({{ $milestone->id }})" class="text-gray-500 hover:text-blue-600 focus:outline-none" title="Monter">
@@ -43,7 +43,7 @@
                                         </svg>
                                     </button>
                                 </div>
-                                <div class="text-sm text-gray-900">{{ $milestone->position }}</div>
+                                {{-- <div class="text-sm text-gray-900">{{ $milestone->position }}</div> --}}
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -101,7 +101,7 @@
     <!-- Modal pour ajouter/modifier un jalon -->
     @if($showModal)
         <div class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full modal-container no-scrollbar">
                 <div class="p-6">
                     <div class="flex justify-between items-center border-b pb-3 mb-5">
                         <h3 class="text-xl font-semibold text-gray-900">
@@ -116,17 +116,18 @@
                     
                     <form wire:submit.prevent="saveMilestone">
                         <div class="grid grid-cols-6 gap-6">
-                            <div class="col-span-6">
+                            <!-- Titre et timing sur la même ligne -->
+                            <div class="col-span-4">
                                 <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Titre</label>
                                 <input type="text" id="title" wire:model="milestone.title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5 px-4">
                                 @error('milestone.title') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                             </div>
                             
-                            {{-- <div class="col-span-6 sm:col-span-3">
-                                <label for="position" class="block text-sm font-medium text-gray-700 mb-1">Position</label>
-                                <input type="number" id="position" wire:model="milestone.position" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5 px-4">
-                                @error('milestone.position') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
-                            </div> --}}
+                            <div class="col-span-2">
+                                <label for="timing_months" class="block text-sm font-medium text-gray-700 mb-1">Timing (mois avant présentation)</label>
+                                <input type="number" id="timing_months" wire:model="milestone.timing_months" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5 px-4">
+                                @error('milestone.timing_months') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
+                            </div>
                             
                             <div class="col-span-6">
                                 <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
@@ -134,14 +135,8 @@
                                 @error('milestone.description') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                             </div>
                             
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="timing_months" class="block text-sm font-medium text-gray-700 mb-1">Timing (en mois avant présentation)</label>
-                                <input type="number" id="timing_months" wire:model="milestone.timing_months" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2.5 px-4">
-                                <p class="mt-1 text-xs text-gray-500">Nombre de mois idéal avant la présentation finale (ex: 12 pour "1 an avant")</p>
-                                @error('milestone.timing_months') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
-                            </div>
-                            
-                            <div class="col-span-6">
+                            <!-- Trois inputs sur la même ligne -->
+                            <div class="col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Outils</label>
                                 <div class="relative">
                                     <input 
@@ -166,7 +161,7 @@
                                                         {{ $tool }}
                                                     </li>
                                                 @endforeach
-                                                @if($toolSearch && !in_array($toolSearch, $toolSuggestions))
+                                                {{-- @if($toolSearch && !in_array($toolSearch, $toolSuggestions))
                                                     <li 
                                                         wire:click="selectTool('{{ $toolSearch }}')" 
                                                         class="px-4 py-2 hover:bg-blue-100 cursor-pointer text-sm bg-blue-50 flex items-center font-medium">
@@ -175,14 +170,14 @@
                                                         </svg>
                                                         <span>Ajouter: "<span class="text-blue-600">{{ $toolSearch }}</span>"</span>
                                                     </li>
-                                                @endif
+                                                @endif --}}
                                             </ul>
                                         </div>
                                     @endif
                                 </div>
                                 
                                 <!-- Tags d'outils sélectionnés -->
-                                <div class="mt-2 flex flex-wrap gap-2">
+                                <div class="mt-2 flex flex-wrap gap-2 max-h-28 overflow-y-auto">
                                     @foreach($selectedTools as $index => $tool)
                                         <div class="flex items-center bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full text-sm">
                                             {{ $tool }}
@@ -202,7 +197,7 @@
                             </div>
 
                             <!-- Section concepts avec autocomplétion -->
-                            <div class="col-span-6">
+                            <div class="col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Concepts</label>
                                 <div class="relative">
                                     <input 
@@ -215,8 +210,8 @@
                                         autocomplete="off"
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm py-2.5 px-4">
                                     
-                                    <!-- Dropdown d'autocomplétion -->
-                                    @if($showConceptsDropdown && count($conceptSuggestions) > 0)
+                                     <!-- Dropdown d'autocomplétion -->
+                                     @if($showConceptsDropdown && count($conceptSuggestions) > 0)
                                         <div class="absolute z-50 mt-1 w-full bg-white shadow-lg rounded-md border border-gray-300 max-h-60 overflow-y-auto">
                                             <ul>
                                                 @foreach($conceptSuggestions as $concept)
@@ -227,7 +222,7 @@
                                                         {{ $concept }}
                                                     </li>
                                                 @endforeach
-                                                @if($conceptSearch && !in_array($conceptSearch, $conceptSuggestions))
+                                                {{-- @if($conceptSearch && !in_array($conceptSearch, $conceptSuggestions))
                                                     <li 
                                                         wire:click="selectConcept('{{ $conceptSearch }}')" 
                                                         class="px-4 py-2 hover:bg-green-100 cursor-pointer text-sm bg-green-50 flex items-center font-medium">
@@ -236,14 +231,14 @@
                                                         </svg>
                                                         <span>Ajouter: "<span class="text-green-600">{{ $conceptSearch }}</span>"</span>
                                                     </li>
-                                                @endif
+                                                @endif --}}
                                             </ul>
                                         </div>
-                                    @endif
+                                     @endif
                                 </div>
                                 
                                 <!-- Tags de concepts sélectionnés -->
-                                <div class="mt-2 flex flex-wrap gap-2">
+                                <div class="mt-2 flex flex-wrap gap-2 max-h-28 overflow-y-auto">
                                     @foreach($selectedConcepts as $index => $concept)
                                         <div class="flex items-center bg-green-50 text-green-700 px-2.5 py-1 rounded-full text-sm">
                                             {{ $concept }}
@@ -263,7 +258,7 @@
                             </div>
 
                             <!-- Section cours avec autocomplétion -->
-                            <div class="col-span-6">
+                            <div class="col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Cours associés</label>
                                 <div class="relative">
                                     <input 
@@ -288,7 +283,7 @@
                                                         {{ $course }}
                                                     </li>
                                                 @endforeach
-                                                @if($courseSearch && !in_array($courseSearch, $courseSuggestions))
+                                                {{-- @if($courseSearch && !in_array($courseSearch, $courseSuggestions))
                                                     <li 
                                                         wire:click="selectCourse({{ json_encode($courseSearch) }})" 
                                                         class="px-4 py-2 hover:bg-purple-100 cursor-pointer text-sm bg-purple-50 flex items-center font-medium">
@@ -297,14 +292,14 @@
                                                         </svg>
                                                         <span>Ajouter: "<span class="text-purple-600">{{ $courseSearch }}</span>"</span>
                                                     </li>
-                                                @endif
+                                                @endif --}}
                                             </ul>
                                         </div>
                                     @endif
                                 </div>
                                 
                                 <!-- Tags de cours sélectionnés -->
-                                <div class="mt-2 flex flex-wrap gap-2">
+                                <div class="mt-2 flex flex-wrap gap-2 max-h-28 overflow-y-auto">
                                     @foreach($selectedCourses as $index => $course)
                                         <div class="flex items-center bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full text-sm">
                                             {{ $course }}
@@ -333,7 +328,14 @@
                                     <div class="grid grid-cols-1 gap-4">
                                         <div>
                                             <label for="documentToUpload" class="block text-xs font-medium text-gray-500 mb-1">Fichier</label>
-                                            <input type="file" id="documentToUpload" wire:model="documentToUpload" class="mt-1 block w-full py-1.5 px-3 border border-gray-300 rounded-md text-sm">
+                                            <input type="file" id="documentToUpload" 
+                                                wire:model="documentToUpload" 
+                                                x-data="{}" 
+                                                x-on:change="
+                                                    fileName = $event.target.files[0].name;
+                                                    $wire.set('documentName', fileName);
+                                                " 
+                                                class="mt-1 block w-full py-1.5 px-3 border border-gray-300 rounded-md text-sm">
                                             @error('documentToUpload') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                         </div>
                                         
@@ -368,7 +370,7 @@
                                         <div class="overflow-hidden bg-white shadow-sm rounded-md border border-gray-200">
                                             <ul role="list" class="divide-y divide-gray-200">
                                                 @foreach($milestoneDocuments as $document)
-                                                    <li class="px-4 py-4 sm:px-6 hover:bg-gray-50">
+                                                    <li class="px-4 py-4 sm:px-6 hover:bg-gray-50 transition duration-150">
                                                         <div class="flex items-center justify-between">
                                                             <div class="flex items-center min-w-0">
                                                                 <div class="flex-shrink-0">
@@ -460,6 +462,7 @@
 
 @push('scripts')
 <style>
+
     /* Styles pour les boutons de navigation */
     .hover\:bg-gray-50:hover {
         background-color: #f9fafb;
