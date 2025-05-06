@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\ProfileController;
+use App\Livewire\Profile;
 use Illuminate\Support\Facades\Route;
 
 // Routes principales
@@ -28,11 +28,8 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     
-    // Routes de profil utilisateur
-    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Route de profil utilisateur
+    Route::get('/profile', Profile::class)->name('profile');
 
     // Routes d'administration
     Route::prefix('admin')->middleware('auth')->group(function () {
@@ -56,7 +53,7 @@ Route::middleware('auth')->group(function () {
             return view('pages.admin.courses');
         })->name('admin.courses');
         
-        // Gestion des utilisateurs (désormais entièrement gérée par Livewire)
+        // Gestion des utilisateurs
         Route::get('/users', function () {
             return view('pages.admin.users');
         })->name('admin.users');
