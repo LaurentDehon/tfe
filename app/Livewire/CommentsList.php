@@ -13,6 +13,12 @@ class CommentsList extends Component
         'content' => '',
         'parent_id' => null
     ];
+    
+    // Ajout de l'écouteur pour l'événement commentDeleted
+    protected $listeners = [
+        'commentReplied' => 'refreshComments',
+        'commentDeleted' => 'refreshComments'
+    ];
 
     public function mount()
     {
