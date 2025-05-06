@@ -125,9 +125,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-500">
-                                <span class="local-datetime" data-timestamp="{{ $user->created_at->timestamp }}">
-                                    {{ $user->created_at->format('d/m/Y H:i') }}
-                                </span>
+                                {{ $user->created_at->format('d/m/Y H:i') }}                                
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
