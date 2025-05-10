@@ -8,30 +8,26 @@
             </div>
             <div>
                 <h4 class="font-semibold text-gray-900">{{ $comment->author_name }}</h4>
-                <p class="text-sm text-gray-500">{{ $comment->created_at->diffForHumans() }}</p>
+                <p class="text-sm text-gray-500">{{ $comment->created_at->locale('fr')->diffForHumans() }}</p>
             </div>
         </div>
         
-        <div class="flex items-center space-x-2 text-sm">
-            <button wire:click="voteUp" class="flex items-center text-gray-500 hover:text-green-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
-                </svg>
-                <span class="ml-1">{{ $comment->votes_up }}</span>
+        <div class="flex items-center text-sm">
+            <button wire:click="voteUp" class="flex items-center px-3 py-2 rounded-md transition-all duration-200 {{ $userVote === 'up' ? 'bg-green-100 text-green-600 border border-green-200' : 'text-gray-500 hover:bg-gray-100 hover:text-green-600 border border-transparent' }}">
+                <img src="https://icons.iconarchive.com/icons/oxygen-icons.org/oxygen/128/Emotes-face-smile-icon.png" width="24" height="24" alt="Smiley content">
+                <span class="ml-1 font-medium">{{ $comment->votes_up }}</span>
             </button>
             
-            <button wire:click="voteDown" class="flex items-center text-gray-500 hover:text-red-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
-                </svg>
-                <span class="ml-1">{{ $comment->votes_down }}</span>
+            <button wire:click="voteDown" class="flex items-center px-3 py-2 rounded-md transition-all duration-200 {{ $userVote === 'down' ? 'bg-red-100 text-red-600 border border-red-200' : 'text-gray-500 hover:bg-gray-100 hover:text-red-600 border border-transparent' }}">
+                <img src="https://icons.iconarchive.com/icons/oxygen-icons.org/oxygen/128/Emotes-face-sad-icon.png" width="24" height="24" alt="Smiley triste">
+                <span class="ml-1 font-medium">{{ $comment->votes_down }}</span>
             </button>
             
             {{-- Bouton de suppression visible uniquement pour les administrateurs --}}
             @if($isAdmin)
             <button 
                 onclick="confirmDelete({{ $comment->id }}, 'comment')" 
-                class="ml-4 flex items-center text-gray-500 hover:text-red-600" 
+                class="ml-2 flex items-center px-2 py-1 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-md transition-all duration-200 border border-transparent hover:border-red-200" 
                 title="Supprimer ce commentaire"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -90,30 +86,26 @@
                             </div>
                             <div>
                                 <h4 class="font-medium text-gray-900 text-sm">{{ $reply->author_name }}</h4>
-                                <p class="text-xs text-gray-500">{{ $reply->created_at->diffForHumans() }}</p>
+                                <p class="text-xs text-gray-500">{{ $reply->created_at->locale('fr')->diffForHumans() }}</p>
                             </div>
                         </div>
                         
-                        <div class="flex items-center space-x-2 text-xs">
-                            <button class="flex items-center text-gray-500 hover:text-green-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
-                                </svg>
-                                <span class="ml-1">{{ $reply->votes_up }}</span>
+                        <div class="flex items-center text-xs">
+                            <button wire:click="voteReplyUp({{ $reply->id }})" class="flex items-center px-2.5 py-1.5 rounded-md transition-all duration-200 {{ isset($replyVotes[$reply->id]) && $replyVotes[$reply->id] === 'up' ? 'bg-green-100 text-green-600 border border-green-200' : 'text-gray-500 hover:bg-gray-100 hover:text-green-600 border border-transparent' }}">
+                                <img src="https://icons.iconarchive.com/icons/oxygen-icons.org/oxygen/128/Emotes-face-smile-icon.png" width="20" height="20" alt="Smiley content">
+                                <span class="ml-1 font-medium">{{ $reply->votes_up }}</span>
                             </button>
                             
-                            <button class="flex items-center text-gray-500 hover:text-red-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
-                                </svg>
-                                <span class="ml-1">{{ $reply->votes_down }}</span>
+                            <button wire:click="voteReplyDown({{ $reply->id }})" class="flex items-center px-2.5 py-1.5 rounded-md transition-all duration-200 {{ isset($replyVotes[$reply->id]) && $replyVotes[$reply->id] === 'down' ? 'bg-red-100 text-red-600 border border-red-200' : 'text-gray-500 hover:bg-gray-100 hover:text-red-600 border border-transparent' }}">
+                                <img src="https://icons.iconarchive.com/icons/oxygen-icons.org/oxygen/128/Emotes-face-sad-icon.png" width="20" height="20" alt="Smiley triste">
+                                <span class="ml-1 font-medium">{{ $reply->votes_down }}</span>
                             </button>
                             
                             {{-- Bouton de suppression pour les réponses - visible uniquement pour les administrateurs --}}
                             @if($isAdmin)
                             <button 
                                 onclick="confirmDelete({{ $reply->id }}, 'reply')" 
-                                class="ml-3 flex items-center text-gray-500 hover:text-red-600" 
+                                class="flex items-center px-1.5 py-0.5 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded transition-all duration-200 border border-transparent hover:border-red-200" 
                                 title="Supprimer cette réponse"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

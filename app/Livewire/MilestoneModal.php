@@ -34,12 +34,17 @@ class MilestoneModal extends Component
         $toolNames = $milestone->toolsArray;
         
         if (count($toolNames) > 0) {
-            // Récupérer tous les outils dont le nom est dans la liste
-            $tools = Tool::whereIn('name', $toolNames)->get();
+            // Récupérer tous les outils existants
+            $tools = Tool::whereNotNull('url')->get();
             
-            // Créer un tableau associatif nom => url
+            // Créer un tableau associatif nom => url en normalisant les noms d'outils
             foreach ($tools as $tool) {
-                $this->toolsWithUrls[$tool->name] = $tool->url;
+                foreach ($toolNames as $toolName) {
+                    // Comparer les noms normalisés (sans espaces autour et insensible à la casse)
+                    if (strtolower(trim($tool->name)) === strtolower(trim($toolName))) {
+                        $this->toolsWithUrls[$toolName] = $tool->url;
+                    }
+                }
             }
         }
     }

@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Comment;
 use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
 
 class CommentsList extends Component
 {
@@ -23,6 +24,11 @@ class CommentsList extends Component
     public function mount()
     {
         $this->refreshComments();
+        
+        // Initialiser le nom de l'auteur avec le nom de l'utilisateur connecté
+        if (Auth::check()) {
+            $this->newComment['author_name'] = Auth::user()->name;
+        }
     }
     
     public function refreshComments()
