@@ -74,6 +74,12 @@ class MilestonesManager extends Component
     public function mount()
     {
         $this->refreshMilestones();
+        
+        // Vérifier si un paramètre d'URL edit est présent pour ouvrir directement la modal d'édition
+        $editId = request()->query('edit');
+        if ($editId) {
+            $this->openModal((int)$editId);
+        }
     }
 
     public function refreshMilestones()
