@@ -216,7 +216,7 @@
                                             <ul>
                                                 @foreach($conceptSuggestions as $concept)
                                                     <li 
-                                                        wire:click="selectConcept('{{ $concept }}')" 
+                                                        wire:click="selectConcept({{ json_encode($concept) }})" 
                                                         class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center">
                                                         <span class="w-1.5 h-4 bg-green-500 rounded-full mr-2"></span>
                                                         {{ $concept }}
@@ -288,7 +288,7 @@
                                                         wire:click="selectCourse({{ json_encode($courseSearch) }})" 
                                                         class="px-4 py-2 hover:bg-purple-100 cursor-pointer text-sm bg-purple-50 flex items-center font-medium">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                                                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a 1 1 0 011-1z" clip-rule="evenodd" />
                                                         </svg>
                                                         <span>Ajouter: "<span class="text-purple-600">{{ $courseSearch }}</span>"</span>
                                                     </li>
