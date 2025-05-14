@@ -69,6 +69,15 @@ class ConceptsManager extends Component
     public function mount()
     {
         $this->search = request()->query('search', $this->search);
+        
+        // Vérifier si un paramètre d'URL edit est présent pour ouvrir directement la modal d'édition
+        $editId = request()->query('edit');
+        if ($editId) {
+            $concept = Concept::find((int)$editId);
+            if ($concept) {
+                $this->edit($concept);
+            }
+        }
     }
     
     public function openModal()
