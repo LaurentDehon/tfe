@@ -35,7 +35,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach($concepts as $concept)
                             <article 
-                                class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6 border-l-4 border-emerald-500 cursor-pointer h-60 flex flex-col"
+                                class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6 border-l-4 border-emerald-500 cursor-pointer h-70 flex flex-col"
                                 x-on:click="window.dispatchEvent(new CustomEvent('showConcept', { detail: { concept: {{ $concept->id }} } }))">
                                 <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ $concept->name }}</h3>
                                 
