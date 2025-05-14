@@ -25,6 +25,11 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
+            // Enregistrement de la date et l'heure de la dernière connexion
+            $user = Auth::user();
+            $user->last_login_at = now();
+            $user->save();
+
             return redirect()->intended(route('timeline'));
         }
 
