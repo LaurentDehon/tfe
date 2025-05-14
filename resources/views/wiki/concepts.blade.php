@@ -3,7 +3,7 @@
 @section('title', 'Wiki des Concepts')
 
 @section('content')
-<div class="bg-gray-50 min-h-screen py-8">
+<div class="bg-gray-50 min-h-screen py-8" x-data="{}">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <header class="mb-8 text-center">
             <h1 class="text-3xl font-bold text-gray-900 mb-3">Wiki des Concepts</h1>
@@ -34,33 +34,30 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach($concepts as $concept)
-                            <article class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6 border-l-4 border-emerald-500">
+                            <article 
+                                class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6 border-l-4 border-emerald-500 cursor-pointer h-60 flex flex-col"
+                                x-on:click="window.dispatchEvent(new CustomEvent('showConcept', { detail: { concept: {{ $concept->id }} } }))">
                                 <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ $concept->name }}</h3>
                                 
-                                <div class="prose prose-sm text-gray-600 mb-4">
+                                <div class="prose prose-sm text-gray-600 mb-4 overflow-hidden flex-grow">
                                     @if($concept->description)
-                                        <p>{{ $concept->description }}</p>
+                                        <div class="line-clamp-4">{{ $concept->description }}</div>
+                                        @if(strlen($concept->description) > 200)
+                                            <div class="mt-2 text-sm text-emerald-600 font-medium">Cliquez pour voir plus...</div>
+                                        @endif
                                     @else
                                         <p class="text-gray-400 italic">Aucune description disponible</p>
                                     @endif
                                 </div>
                                 
                                 @if($concept->urls && count($concept->urls) > 0)
-                                    <div class="mt-4">
-                                        <h4 class="text-sm font-semibold text-gray-700 mb-2">Ressources:</h4>
-                                        <ul class="space-y-1">
-                                            @foreach($concept->urls as $url)
-                                                <li>
-                                                    <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" 
-                                                       class="text-blue-600 hover:text-blue-800 text-sm flex items-center group">
-                                                        <span class="truncate">{{ parse_url($url, PHP_URL_HOST) }}</span>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 opacity-70 group-hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                        </svg>
-                                                    </a>
-                                                </li>
-                                            @endforeach
-                                        </ul>
+                                    <div class="mt-auto pt-3 border-t border-gray-100">
+                                        <div class="text-sm text-gray-500 flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
+                                            </svg>
+                                            {{ count($concept->urls) }} ressource(s)
+                                        </div>
                                     </div>
                                 @endif
                             </article>
@@ -81,6 +78,9 @@
         </div>
     </div>
 </div>
+
+<!-- Inclure le composant modal pour les concepts -->
+<livewire:concept-modal />
 @endsection
 
 @push('styles')
@@ -88,6 +88,14 @@
     /* Animation de défilement fluide pour les ancres */
     html {
         scroll-behavior: smooth;
+    }
+    
+    /* Classes pour limiter le texte à un nombre de lignes */
+    .line-clamp-4 {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 4;
+        overflow: hidden;
     }
 </style>
 @endpush
