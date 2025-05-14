@@ -36,6 +36,7 @@
                 <div class="flex space-x-8">
                     <a href="{{ route('timeline') }}" class="text-gray-700 hover:text-blue-500 font-medium">Timeline</a>
                     <a href="{{ route('comments') }}" class="text-gray-700 hover:text-blue-500 font-medium">Commentaires</a>
+                    <a href="{{ route('wiki.concepts') }}" class="text-gray-700 hover:text-blue-500 font-medium">Wiki Concepts</a>
                 </div>
                 <div class="flex items-center space-x-6">
                     @auth

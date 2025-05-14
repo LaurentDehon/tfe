@@ -15,6 +15,8 @@ class ConceptsManager extends Component
     public $showModal = false;
     public $conceptId;
     public $name;
+    public $description;
+    public $urlString;
     public $isEditing = false;
     public $page = 1;
     
@@ -34,6 +36,8 @@ class ConceptsManager extends Component
     
     protected $rules = [
         'name' => 'required|string|max:255|unique:concepts,name',
+        'description' => 'nullable|string',
+        'urlString' => 'nullable|string',
     ];
     
     public function sortBy($field)
@@ -69,7 +73,7 @@ class ConceptsManager extends Component
     
     public function openModal()
     {
-        $this->reset(['conceptId', 'name', 'isEditing']);
+        $this->reset(['conceptId', 'name', 'description', 'urlString', 'isEditing']);
         $this->showModal = true;
     }
     
@@ -82,9 +86,23 @@ class ConceptsManager extends Component
     {
         $this->conceptId = $concept->id;
         $this->name = $concept->name;
+        $this->description = $concept->description;
+        $this->urlString = $concept->urls ? implode("\n", $concept->urls) : '';
         $this->isEditing = true;
         
         $this->showModal = true;
+    }
+    
+    private function parseUrls($urlString)
+    {
+        if (empty($urlString)) {
+            return null;
+        }
+        
+        // Sépare les URLs par saut de ligne, supprime les doublons et les espaces
+        $urls = array_filter(array_map('trim', explode("\n", $urlString)));
+        
+        return !empty($urls) ? $urls : null;
     }
     
     public function save()
@@ -97,23 +115,29 @@ class ConceptsManager extends Component
         
         $this->validate();
         
+        $urls = $this->parseUrls($this->urlString);
+        
         if ($this->isEditing) {
             $concept = Concept::find($this->conceptId);
             $concept->update([
                 'name' => $this->name,
+                'description' => $this->description,
+                'urls' => $urls,
             ]);
             
             $this->dispatch('notify', type: 'success', title: 'Mise à jour réussie', message: 'Le concept a été mis à jour avec succès!');
         } else {
             Concept::create([
                 'name' => $this->name,
+                'description' => $this->description,
+                'urls' => $urls,
             ]);
             
             $this->dispatch('notify', type: 'success', title: 'Ajout réussi', message: 'Nouveau concept ajouté avec succès!');
         }
         
         $this->closeModal();
-        $this->reset(['conceptId', 'name', 'isEditing']);
+        $this->reset(['conceptId', 'name', 'description', 'urlString', 'isEditing']);
     }
     
     public function goToPage($pageNumber)
@@ -134,7 +158,8 @@ class ConceptsManager extends Component
     {
         return view('livewire.admin.concepts-manager', [
             'concepts' => Concept::when($this->search, function ($query) {
-                    $query->where('name', 'like', '%' . $this->search . '%');
+                    $query->where('name', 'like', '%' . $this->search . '%')
+                        ->orWhere('description', 'like', '%' . $this->search . '%');
                 })
                 ->orderBy($this->sortField, $this->sortDirection)
                 ->paginate($this->perPage)

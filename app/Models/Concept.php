@@ -9,5 +9,9 @@ class Concept extends Model
 {
     use HasFactory;
     
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'urls', 'description'];
+    
+    protected $casts = [
+        'urls' => 'array',
+    ];
 }

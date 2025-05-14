@@ -63,6 +63,16 @@
                         </div>
                     </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <div class="flex items-center">
+                            Description
+                        </div>
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <div class="flex items-center">
+                            URLs
+                        </div>
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <div class="flex items-center cursor-pointer" wire:click="sortBy('created_at')">
                             Date de création
                             @if($sortField === 'created_at')
@@ -86,8 +96,33 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($concepts as $concept)
                     <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-6 py-4">
                             <div class="text-sm font-medium text-gray-900">{{ $concept->name }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-500 line-clamp-2">
+                                {{ $concept->description ?: 'Aucune description' }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-500">
+                                @if($concept->urls && count($concept->urls) > 0)
+                                    <div class="flex flex-col space-y-1">
+                                        @foreach(array_slice($concept->urls, 0, 2) as $url)
+                                            <a href="{{ $url }}" target="_blank" class="text-blue-600 hover:text-blue-800 truncate max-w-xs" title="{{ $url }}">
+                                                {{ Str::limit($url, 30) }}
+                                            </a>
+                                        @endforeach
+                                        @if(count($concept->urls) > 2)
+                                            <span class="text-xs text-gray-500">
+                                                +{{ count($concept->urls) - 2 }} autres
+                                            </span>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span class="text-gray-400">Aucune URL</span>
+                                @endif
+                            </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-500">
@@ -117,7 +152,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">
+                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
                             Aucun concept trouvé. Cliquez sur "Nouveau concept" pour en ajouter un.
                         </td>
                     </tr>
@@ -216,17 +251,48 @@
                     </div>
                     
                     <form wire:submit.prevent="save">
-                        <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
-                            <input 
-                                type="text" 
-                                id="name" 
-                                wire:model="name" 
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm py-2 px-3"
-                            >
-                            @error('name') 
-                                <span class="text-red-500 text-sm mt-1">{{ $message }}</span> 
-                            @enderror
+                        <div class="space-y-4">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+                                <input 
+                                    type="text" 
+                                    id="name" 
+                                    wire:model="name" 
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm py-2 px-3"
+                                >
+                                @error('name') 
+                                    <span class="text-red-500 text-sm mt-1">{{ $message }}</span> 
+                                @enderror
+                            </div>
+                            
+                            <div>
+                                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea 
+                                    id="description" 
+                                    wire:model="description" 
+                                    rows="3"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm py-2 px-3"
+                                    placeholder="Description du concept (optionnel)"
+                                ></textarea>
+                                @error('description') 
+                                    <span class="text-red-500 text-sm mt-1">{{ $message }}</span> 
+                                @enderror
+                            </div>
+                            
+                            <div>
+                                <label for="urlString" class="block text-sm font-medium text-gray-700 mb-1">URLs (une par ligne)</label>
+                                <textarea 
+                                    id="urlString" 
+                                    wire:model="urlString" 
+                                    rows="4"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm py-2 px-3"
+                                    placeholder="https://exemple1.com&#10;https://exemple2.com"
+                                ></textarea>
+                                <p class="text-xs text-gray-500 mt-1">Saisissez une URL par ligne. Ces URLs seront associées au concept.</p>
+                                @error('urlString') 
+                                    <span class="text-red-500 text-sm mt-1">{{ $message }}</span> 
+                                @enderror
+                            </div>
                         </div>
                         
                         <div class="mt-6 flex justify-end space-x-3">

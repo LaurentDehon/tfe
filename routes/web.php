@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\WikiController;
 use App\Livewire\Profile;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,9 @@ Route::get('/timeline', function () {
 Route::get('/comments', function () {
     return view('pages.comments');
 })->name('comments');
+
+// Page Wiki des concepts
+Route::get('/wiki/concepts', [WikiController::class, 'concepts'])->name('wiki.concepts');
 
 // Routes d'authentification
 Route::middleware('guest')->group(function () {
