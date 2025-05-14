@@ -234,7 +234,7 @@
     <!-- Modal pour ajouter/modifier un concept -->
     @if($showModal)
         <div class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
                 <div class="p-6">
                     <div class="flex justify-between items-center border-b pb-3 mb-5">
                         <h3 class="text-xl font-semibold text-gray-900">
@@ -270,7 +270,7 @@
                                 <textarea 
                                     id="description" 
                                     wire:model="description" 
-                                    rows="3"
+                                    rows="6"
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm py-2 px-3"
                                     placeholder="Description du concept (optionnel)"
                                 ></textarea>
